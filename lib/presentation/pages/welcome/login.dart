@@ -1,35 +1,18 @@
+import 'package:absensi_glagahwangi/data/repository/auth_repository.dart';
+import 'package:absensi_glagahwangi/presentation/blocs/cubits/login/login_cubit.dart';
+import 'package:absensi_glagahwangi/presentation/pages/home/home.dart';
+import 'package:absensi_glagahwangi/presentation/pages/navbar.dart';
 import 'package:absensi_glagahwangi/presentation/widget/auth_button.dart';
 import 'package:absensi_glagahwangi/presentation/widget/form_field.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'forget_password.dart';
 
-class Login extends StatefulWidget {
+class Login extends StatelessWidget {
   const Login({super.key});
-
-  @override
-  State<Login> createState() => _LoginState();
-}
-
-class _LoginState extends State<Login> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _streetAddressController = TextEditingController();
-  final _cityController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _streetAddressController.dispose();
-    _cityController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,66 +50,112 @@ class _LoginState extends State<Login> {
                 const SizedBox(
                   height: 20,
                 ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      const CustomFormField(
-                          fieldName: "Username", label: "Username"),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const CustomFormField(
-                        fieldName: "Password",
-                        label: "Password",
-                        isPassword: true,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            "Lupa Password?",
-                            style: TextStyle(
-                              color: ColorPalette.main_text,
-                              fontFamily: "Manrope",
-                              fontSize: 18,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ForgetPassword(),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              " Reset",
-                              style: TextStyle(
-                                color: ColorPalette.main_green,
-                                fontFamily: "Manrope",
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      authButton(text: "MASUK", onTap: () {})
-                    ],
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 0),
+                  child: BlocProvider(
+                    create: (_) => LoginCubit(context.read<AuthRepository>()),
+                    child: LoginForm(),
                   ),
                 ),
               ],
             ),
           ),
         ));
+  }
+}
+
+class LoginForm extends StatelessWidget {
+  const LoginForm({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<LoginCubit, LoginState>(
+      listener: (context, state) {
+        if (state.status == LoginStatus.error) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Login Gagal')));
+        }
+      },
+      child: Column(
+        children: [
+          BlocBuilder<LoginCubit, LoginState>(
+            buildWhen: (previous, current) => previous.email != current.email,
+            builder: (context, state) {
+              return CustomFormField(
+                fieldName: "Email",
+                label: "Email",
+                onChanged: (email) => context.read<LoginCubit>().emailChanged(email),
+              );
+            },
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          BlocBuilder<LoginCubit, LoginState>(
+            buildWhen: (previous, current) => previous.password != current.password,
+            builder: (context, state) {
+              return CustomFormField(
+                isPassword: true,
+                fieldName: "Password",
+                label: "Password",
+                onChanged: (password) => context.read<LoginCubit>().passwordChanged(password),
+              );
+            },
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const Text(
+                "Lupa Password?",
+                style: TextStyle(
+                  color: ColorPalette.main_text,
+                  fontFamily: "Manrope",
+                  fontSize: 18,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ForgetPassword(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  " Reset",
+                  style: TextStyle(
+                    color: ColorPalette.main_green,
+                    fontFamily: "Manrope",
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          BlocBuilder<LoginCubit, LoginState>(
+            buildWhen: (previous, current) => previous.status != current.status,
+            builder: (context, state) {
+              return state.status == LoginStatus.submitting
+                  ? const CircularProgressIndicator()
+                  :AuthButton(
+                text: 'Masuk',
+                onPressed: () {
+                  context.read<LoginCubit>().logInWithCredentials();
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -8,14 +8,17 @@ class CustomFormField extends StatefulWidget {
   final bool isPassword;
   final bool isPhone;
   final bool isEmail;
+  final Function(String)? onChanged;
 
   const CustomFormField({
     super.key,
     required this.fieldName,
     required this.label,
+    this.onChanged,
     this.isPassword = false,
     this.isPhone = false,
     this.isEmail = false,
+
   });
 
   @override
@@ -28,6 +31,7 @@ class _CustomFormFieldState extends State<CustomFormField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onChanged: widget.onChanged,
       obscureText: widget.isPassword && isObscure,
       inputFormatters: widget.isPhone ? [FilteringTextInputFormatter.digitsOnly] : [],
       keyboardType: widget.isPhone
@@ -73,7 +77,7 @@ InputDecoration inputDecoration({
     InputDecoration(
       enabledBorder: enabledBorder ??
           OutlineInputBorder(
-            borderSide: const BorderSide(color: ColorPalette.border_stroke, width: 1.0),
+            borderSide: const BorderSide(color: ColorPalette.main_text, width: 1.0),
             borderRadius: BorderRadius.circular(8.0),
           ),
       border: border ?? const OutlineInputBorder(borderSide: BorderSide()),

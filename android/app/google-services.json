@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "38762331680",
+    "project_id": "absensi-glagahwangi",
+    "storage_bucket": "absensi-glagahwangi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38762331680:android:06488155984acf81dec645",
+        "android_client_info": {
+          "package_name": "com.glagahwangi.absensi_glagahwangi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBI29VUGLEhCrFKny1556Yi-dcJaJIyZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

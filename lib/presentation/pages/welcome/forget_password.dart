@@ -62,9 +62,9 @@ class ForgetPassword extends StatelessWidget {
                       const SizedBox(
                         height: 20,
                       ),
-                      authButton(
+                      AuthButton(
                           text: "KIRIM",
-                          onTap: () {
+                          onPressed: () {
                             {
                               final snackBar = SnackBar(
                                 shape: RoundedRectangleBorder(
