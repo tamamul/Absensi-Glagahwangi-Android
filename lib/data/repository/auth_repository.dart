@@ -1,14 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/user.dart';
 
 class AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore _firestore;
 
-  AuthRepository({firebase_auth.FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
+  AuthRepository({firebase_auth.FirebaseAuth? firebaseAuth, FirebaseFirestore? firestore})
+      : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance;
 
-  var currentUser = User.empty;
+  User currentUser = User.empty;
 
   Stream<User> get user {
     return _firebaseAuth.authStateChanges().map((firebaseUser) {
@@ -21,12 +24,22 @@ class AuthRepository {
   Future<void> signup({
     required String email,
     required String password,
+    required String name,
+    required String role,
   }) async {
     try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
+      final uid = credential.user!.uid;
+      await _firestore.collection('users').doc(uid).set({
+        'email': email,
+        'phone': '',
+        'picture': '',
+        'name': name,
+        'role': role,
+      });
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Sign up failed: $e');
     }
   }
 
@@ -38,27 +51,28 @@ class AuthRepository {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Login failed: $e');
     }
   }
 
   Future<void> logOut() async {
     try {
-      await Future.wait([_firebaseAuth.signOut()]);
+      await _firebaseAuth.signOut();
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Logout failed: $e');
     }
   }
 }
 
-extension on firebase_auth.User {
+extension FirebaseUserExtension on firebase_auth.User {
   User get toUser {
     return User(
-        id: uid,
-        email: email,
-        displayName: displayName,
-        phone: phoneNumber,
-        picture: photoURL,
-        role: null);
+      id: uid,
+      email: email,
+      displayName: displayName,
+      phone: phoneNumber,
+      picture: '',
+      role: '',
+    );
   }
 }

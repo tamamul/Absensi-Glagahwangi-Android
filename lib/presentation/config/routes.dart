@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../blocs/auth/auth_bloc.dart';
 import '../pages/navbar.dart';
-import '../pages/welcome/login.dart';
+import '../pages/welcome/login/login_form.dart';
+import '../pages/welcome/login/login_page.dart';
 
 List<Page> onGenerateAppViewPages(
   AuthStatus status,
@@ -10,13 +11,9 @@ List<Page> onGenerateAppViewPages(
 ) {
   switch (status) {
     case AuthStatus.authenticated:
-      return [
-        MaterialPage(child: NavBar()),
-      ];
+      return [NavBar.page()];
     case AuthStatus.unauthenticated:
     default:
-      return [
-        MaterialPage(child: Login()),
-      ];
+      return [LoginPage.page()];
   }
 }

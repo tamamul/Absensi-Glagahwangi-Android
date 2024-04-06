@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../utils/color_palette.dart';
-import '../../widget/auth_button.dart';
+import '../../widget/custom_button.dart';
 import '../../widget/form_field.dart';
 
 class ForgetPassword extends StatelessWidget {
@@ -14,7 +14,7 @@ class ForgetPassword extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios),
           color: Colors.black,
           onPressed: () {
             Navigator.pop(context);
@@ -62,7 +62,7 @@ class ForgetPassword extends StatelessWidget {
                       const SizedBox(
                         height: 20,
                       ),
-                      AuthButton(
+                      CustomButton(
                           text: "KIRIM",
                           onPressed: () {
                             {

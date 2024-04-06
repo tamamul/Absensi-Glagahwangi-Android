@@ -6,7 +6,9 @@ import '../../utils/color_palette.dart';
 import 'home/home.dart';
 
 class NavBar extends StatefulWidget {
-  const NavBar({Key? key}) : super(key: key);
+  const NavBar({super.key});
+
+  static Page<void> page() => const MaterialPage<void>(child: NavBar());
 
   @override
   State<NavBar> createState() => _NavBarState();
@@ -83,7 +85,7 @@ class _NavBarState extends State<NavBar> {
                   icon: Icon(Icons.fingerprint_outlined),
                   selectedIcon:
                       Icon(Icons.fingerprint, color: ColorPalette.main_green),
-                  label: 'Scan',
+                  label: 'Absent',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),

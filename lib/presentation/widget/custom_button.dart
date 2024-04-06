@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../utils/color_palette.dart';
 
-class AuthButton extends StatelessWidget {
+class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const AuthButton({
+  const CustomButton({
+    super.key,
     required this.text,
     required this.onPressed,
   });
@@ -18,7 +19,7 @@ class AuthButton extends StatelessWidget {
         minimumSize: const Size.fromHeight(50),
         backgroundColor: ColorPalette.main_green,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
       child: Text(

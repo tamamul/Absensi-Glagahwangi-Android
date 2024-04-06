@@ -1,68 +1,14 @@
-import 'package:absensi_glagahwangi/data/repository/auth_repository.dart';
+
 import 'package:absensi_glagahwangi/presentation/blocs/cubits/login/login_cubit.dart';
-import 'package:absensi_glagahwangi/presentation/pages/home/home.dart';
-import 'package:absensi_glagahwangi/presentation/pages/navbar.dart';
-import 'package:absensi_glagahwangi/presentation/widget/auth_button.dart';
+
+import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:absensi_glagahwangi/presentation/widget/form_field.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'forget_password.dart';
-
-class Login extends StatelessWidget {
-  const Login({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              children: [
-                const Center(
-                    child: Image(
-                        image: AssetImage('assets/images/logo.png'),
-                        height: 140)),
-                const Text(
-                  'Selamat Datang',
-                  style: TextStyle(
-                    color: ColorPalette.main_text,
-                    fontFamily: "Manrope",
-                    fontSize: 34,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  textAlign: TextAlign.start,
-                ),
-                const Text(
-                  "Silahkan Masuk dengan Username dan Password yang Telah Diberikan",
-                  style: TextStyle(
-                    color: ColorPalette.secondary_text,
-                    fontFamily: "Manrope",
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0),
-                  child: BlocProvider(
-                    create: (_) => LoginCubit(context.read<AuthRepository>()),
-                    child: LoginForm(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ));
-  }
-}
+import '../forget_password.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({Key? key}) : super(key: key);
@@ -146,7 +92,7 @@ class LoginForm extends StatelessWidget {
             builder: (context, state) {
               return state.status == LoginStatus.submitting
                   ? const CircularProgressIndicator()
-                  :AuthButton(
+                  :CustomButton(
                 text: 'Masuk',
                 onPressed: () {
                   context.read<LoginCubit>().logInWithCredentials();

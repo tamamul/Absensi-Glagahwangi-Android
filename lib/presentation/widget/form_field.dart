@@ -18,7 +18,6 @@ class CustomFormField extends StatefulWidget {
     this.isPassword = false,
     this.isPhone = false,
     this.isEmail = false,
-
   });
 
   @override
@@ -26,12 +25,15 @@ class CustomFormField extends StatefulWidget {
 }
 
 class _CustomFormFieldState extends State<CustomFormField> {
+  final TextEditingController _controller = TextEditingController();
+
   bool isObscure = true;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      onChanged: widget.onChanged,
+      controller: _controller, // Use TextEditingController
+      onChanged: (value) => widget.onChanged?.call(value), // Call onChanged from state
       obscureText: widget.isPassword && isObscure,
       inputFormatters: widget.isPhone ? [FilteringTextInputFormatter.digitsOnly] : [],
       keyboardType: widget.isPhone
@@ -64,7 +66,6 @@ class _CustomFormFieldState extends State<CustomFormField> {
     );
   }
 }
-
 InputDecoration inputDecoration({
   InputBorder? enabledBorder,
   InputBorder? border,

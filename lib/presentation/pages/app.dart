@@ -31,7 +31,7 @@ class AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: FlowBuilder(
+      home: FlowBuilder<AuthStatus>(
         state: context.select((AuthBloc bloc) => bloc.state.status),
         onGeneratePages: onGenerateAppViewPages,
       ),

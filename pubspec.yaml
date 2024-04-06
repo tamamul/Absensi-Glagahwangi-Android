@@ -40,6 +40,8 @@ dependencies:
   flutter_bloc: ^8.1.5
   equatable: ^2.0.5
   flow_builder: ^0.1.0
+  cloud_firestore: ^4.16.0
+  formz: ^0.7.0
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +95,9 @@ flutter:
            weight: 700
          - asset: assets/fonts/Manrope-ExtraBold.ttf
            weight: 900
+     - family: CustomIcons
+       fonts:
+        - asset: assets/fonts/CustomIcons.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
