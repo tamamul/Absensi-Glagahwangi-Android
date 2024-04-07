@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widget/custom_icons.dart';
+import 'full_profile.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({Key? key}) : super(key: key);
+  const Profile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,7 @@ class Profile extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               Text(
-                "Posisi",
+                user.role ?? "Posisi",
                 style: TextStyle(
                   color: ColorPalette.secondary_text,
                   fontFamily: "Manrope",
@@ -59,7 +60,14 @@ class Profile extends StatelessWidget {
                 text: "Profile Lengkap",
                 prefixIcon: CustomIcons.profile,
                 suffixIcon: Icons.arrow_forward_ios_rounded,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FullProfile(),
+                    ),
+                  );
+                },
               ),
               const SizedBox(
                 height: 5,

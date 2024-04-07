@@ -1,9 +1,8 @@
-import 'package:absensi_glagahwangi/presentation/blocs/cubits/sign_up/signup_cubit.dart';
+import 'package:absensi_glagahwangi/data/repository/admin_repository.dart';
+import 'package:absensi_glagahwangi/presentation/cubits/admin/sign_up/signup_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../data/repository/auth_repository.dart';
-import '../../../utils/color_palette.dart';
 import '../../widget/custom_button.dart';
 import '../../widget/form_field.dart';
 
@@ -35,9 +34,9 @@ class SignUp extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: BlocProvider(
-          create: (_) => SignUpCubit(context.read<AuthRepository>()),
+          create: (_) => SignUpCubit(context.read<AdminRepository>()),
           child: SignUpForm(),
         ),
       ),
@@ -116,18 +115,18 @@ class SignUpForm extends StatelessWidget {
           const SizedBox(
             height: 20,
           ),
-          // BlocBuilder<SignUpCubit, SignupState>(
-          //   buildWhen: (previous, current) =>
-          //       previous.confirmPassword != current.confirmPassword,
-          //   builder: (context, state) {
-          //     return CustomFormField(
-          //       fieldName: "Konfirmasi Password",
-          //       label: "Konfirmasi Password",
-          //       onChanged: (confirm_password) =>
-          //           context.read<SignUpCubit>().emailChanged(confirm_password),
-          //     );
-          //   },
-          // ),
+          BlocBuilder<SignUpCubit, SignupState>(
+            buildWhen: (previous, current) =>
+                previous.confirmPassword != current.confirmPassword,
+            builder: (context, state) {
+              return CustomFormField(
+                fieldName: "Konfirmasi Password",
+                label: "Konfirmasi Password",
+                onChanged: (confirm_password) =>
+                    context.read<SignUpCubit>().emailChanged(confirm_password),
+              );
+            },
+          ),
           const SizedBox(
             height: 20,
           ),

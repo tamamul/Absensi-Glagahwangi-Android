@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -6,41 +8,33 @@ import '../models/user.dart';
 class AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
+  late final StreamController<User> _userController;
 
-  AuthRepository({firebase_auth.FirebaseAuth? firebaseAuth, FirebaseFirestore? firestore})
-      : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthRepository({
+    firebase_auth.FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firestore,
+  })   : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance {
+    _userController = StreamController<User>.broadcast(
+      onListen: _onListen,
+      onCancel: _onCancel,
+    );
+  }
 
   User currentUser = User.empty;
 
-  Stream<User> get user {
-    return _firebaseAuth.authStateChanges().map((firebaseUser) {
-      final user = firebaseUser == null ? User.empty : firebaseUser.toUser;
+  Stream<User> get user => _userController.stream;
+
+  void _onListen() {
+    _firebaseAuth.authStateChanges().listen((firebaseUser) async {
+      final user = firebaseUser == null ? User.empty : await firebaseUser.toUser(_firestore);
       currentUser = user;
-      return user;
+      _userController.add(user);
     });
   }
 
-  Future<void> signup({
-    required String email,
-    required String password,
-    required String name,
-    required String role,
-  }) async {
-    try {
-      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      final uid = credential.user!.uid;
-      await _firestore.collection('users').doc(uid).set({
-        'email': email,
-        'phone': '',
-        'picture': '',
-        'name': name,
-        'role': role,
-      });
-    } catch (e) {
-      throw Exception('Sign up failed: $e');
-    }
+  void _onCancel() {
+    _userController.close();
   }
 
   Future<void> logInWithEmailAndPassword({
@@ -49,7 +43,9 @@ class AuthRepository {
   }) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
     } catch (e) {
       throw Exception('Login failed: $e');
     }
@@ -65,14 +61,20 @@ class AuthRepository {
 }
 
 extension FirebaseUserExtension on firebase_auth.User {
-  User get toUser {
-    return User(
-      id: uid,
-      email: email,
-      displayName: displayName,
-      phone: phoneNumber,
-      picture: '',
-      role: '',
-    );
+  Future<User> toUser(FirebaseFirestore firestore) async {
+    final userDoc = await firestore.collection('users').doc(uid).get();
+    if (userDoc.exists) {
+      final userData = userDoc.data();
+      return User(
+        id: uid,
+        email: email,
+        displayName: userData?['name'] ?? '',
+        phone: userData?['phone'] ?? '',
+        picture: userData?['picture'] ?? '',
+        role: userData?['role'] ?? '',
+      );
+    } else {
+      throw Exception('User not found in Firestore');
+    }
   }
 }

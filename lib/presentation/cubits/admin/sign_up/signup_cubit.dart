@@ -1,14 +1,13 @@
+import 'package:absensi_glagahwangi/data/repository/admin_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../../data/repository/auth_repository.dart';
 
 part 'signup_state.dart';
 
 class SignUpCubit extends Cubit<SignupState> {
-  final AuthRepository _authRepository;
+  final AdminRepository _adminRepository;
 
-  SignUpCubit(this._authRepository) : super(SignupState.initial());
+  SignUpCubit(this._adminRepository) : super(SignupState.initial());
 
   void emailChanged(String value) {
     emit(state.copyWith(email: value, status: SignupStatus.initial));
@@ -34,7 +33,7 @@ class SignUpCubit extends Cubit<SignupState> {
     if (state.status == SignupStatus.submitting) return;
     emit(state.copyWith(status: SignupStatus.submitting));
     try {
-      await _authRepository.signup(
+      await _adminRepository.signup(
           email: state.email,
           password: state.password,
           name: state.name,

@@ -65,7 +65,9 @@ class CustomLogoutButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: onPressed,
+      onPressed: () {
+        _showConfirmationDialog(context);
+      },
       style: ButtonStyle(
         padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
       ),
@@ -87,6 +89,34 @@ class CustomLogoutButton extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showConfirmationDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Log Out"),
+          content: Text("Apakah Anda Yakin Untuk Keluar?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                onPressed();
+                Navigator.of(context).pop();
+              },
+              child: Text("Log Out"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

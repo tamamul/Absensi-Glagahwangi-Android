@@ -23,7 +23,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutRequested>(_onLogoutRequested);
 
     _userSubscription = _authRepository.user.listen((user) {
-      add(AuthUserChanged(user));
+      if(user.isNotEmpty){
+        add(AuthUserChanged(user));
+      }
     });
   }
 

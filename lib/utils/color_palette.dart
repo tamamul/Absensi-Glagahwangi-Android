@@ -7,4 +7,6 @@ class ColorPalette{
   static const Color form_text = Color(0xFF989898);
   static const Color navbar_off = Color(0xFF636E72);
   static const Color divider = Color(0xFFCFCFCF);
+  static const Color profile_text = Color(0xA11B2910);
+  static const Color profile_background = Color(0x87ABABAB);
 }

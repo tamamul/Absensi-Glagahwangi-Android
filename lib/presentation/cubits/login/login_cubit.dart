@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,13 +21,22 @@ class LoginCubit extends Cubit<LoginState> {
 
   Future<void> logInWithCredentials() async {
     if (state.status == LoginStatus.submitting) return;
+
     emit(state.copyWith(status: LoginStatus.submitting));
-    try {
-      await _authRepository.logInWithEmailAndPassword(
-          email: state.email, password: state.password);
-      emit(state.copyWith(status: LoginStatus.success));
-    } on Exception {
-      emit(state.copyWith(status: LoginStatus.error));
+
+    final List<ConnectivityResult> connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.mobile) || connectivityResult.contains(ConnectivityResult.wifi)) {
+      try {
+        await _authRepository.logInWithEmailAndPassword(
+          email: state.email,
+          password: state.password,
+        );
+        emit(state.copyWith(status: LoginStatus.success));
+      } on Exception {
+        emit(state.copyWith(status: LoginStatus.error));
+      }
+    } else {
+      emit(state.copyWith(status: LoginStatus.noInternet));
     }
   }
 }
