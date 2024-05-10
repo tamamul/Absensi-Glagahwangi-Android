@@ -1,5 +1,6 @@
 import 'package:absensi_glagahwangi/presentation/blocs/auth/auth_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/pages/admin_only/sign_up.dart';
+import 'package:absensi_glagahwangi/presentation/pages/profile/change_password.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_profile_button.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widget/custom_icons.dart';
-import 'full_profile.dart';
+import 'detail_profile.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -41,7 +42,7 @@ class Profile extends StatelessWidget {
               ),
               Text(
                 user.role ?? "Posisi",
-                style: TextStyle(
+                style: const TextStyle(
                   color: ColorPalette.secondary_text,
                   fontFamily: "Manrope",
                   fontSize: 18,
@@ -64,7 +65,7 @@ class Profile extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FullProfile(),
+                      builder: (context) => const FullProfile(),
                     ),
                   );
                 },
@@ -76,22 +77,28 @@ class Profile extends StatelessWidget {
                 text: "Ganti Password",
                 prefixIcon: CustomIcons.lock,
                 suffixIcon: Icons.arrow_forward_ios_rounded,
-                onPressed: () {},
-              ),
-              CustomProfileButton(
-                // Delete Later
-                text: "Make Account (Delete Later)",
-                prefixIcon: CustomIcons.lock,
-                suffixIcon: Icons.arrow_forward_ios_rounded,
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SignUp(),
+                      builder: (context) => const ChangePassword(),
                     ),
                   );
                 },
               ),
+              // CustomProfileButton(
+              //   text: "Make Account (Delete Later)",
+              //   prefixIcon: CustomIcons.lock,
+              //   suffixIcon: Icons.arrow_forward_ios_rounded,
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => SignUp(),
+              //       ),
+              //     );
+              //   },
+              // ),
               const SizedBox(
                 height: 5,
               ),

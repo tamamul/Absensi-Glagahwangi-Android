@@ -4,9 +4,15 @@ import '../../utils/color_palette.dart';
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final double? textSize;
+  final Color? textColor;
+  final Color? buttonColor;
 
   const CustomButton({
     super.key,
+    this.buttonColor = ColorPalette.main_green,
+    this.textColor = Colors.white,
+    this.textSize = 20,
     required this.text,
     required this.onPressed,
   });
@@ -17,18 +23,18 @@ class CustomButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(50),
-        backgroundColor: ColorPalette.main_green,
+        backgroundColor: buttonColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: "Manrope",
-          color: Colors.white,
+          color: textColor,
           fontWeight: FontWeight.w700,
-          fontSize: 20,
+          fontSize: textSize,
         ),
       ),
     );

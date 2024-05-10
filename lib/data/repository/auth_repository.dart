@@ -17,7 +17,6 @@ class AuthRepository {
         _firestore = firestore ?? FirebaseFirestore.instance {
     _userController = StreamController<User>.broadcast(
       onListen: _onListen,
-      onCancel: _onCancel,
     );
   }
 
@@ -31,10 +30,6 @@ class AuthRepository {
       currentUser = user;
       _userController.add(user);
     });
-  }
-
-  void _onCancel() {
-    _userController.close();
   }
 
   Future<void> logInWithEmailAndPassword({

@@ -79,19 +79,19 @@ class _NavBarState extends State<NavBar> {
                   icon: Icon(Icons.dashboard_outlined),
                   selectedIcon:
                       Icon(Icons.dashboard, color: ColorPalette.main_green),
-                  label: 'Home',
+                  label: 'Beranda',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.fingerprint_outlined),
                   selectedIcon:
                       Icon(Icons.fingerprint, color: ColorPalette.main_green),
-                  label: 'Absent',
+                  label: 'Absensi',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),
                   selectedIcon:
                       Icon(Icons.person, color: ColorPalette.main_green),
-                  label: 'Profile',
+                  label: 'Profil',
                 ),
                 // NavigationDestination(
                 //   icon: Icon(Icons.favorite_outline),

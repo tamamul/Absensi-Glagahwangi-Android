@@ -9,4 +9,7 @@ class ColorPalette{
   static const Color divider = Color(0xFFCFCFCF);
   static const Color profile_text = Color(0xA11B2910);
   static const Color profile_background = Color(0x87ABABAB);
+  static const Color stroke_menu = Color(0xFFDEDEDE);
+  static const Color circle_menu = Color(0xFFDFE6E9);
+  static const Color main_yellow = Color(0xFFFFC107);
 }
