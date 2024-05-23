@@ -38,6 +38,24 @@ class FullProfile extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Container(
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 73,
+                  backgroundImage: NetworkImage(user.picture!),
+                  backgroundColor: Colors.grey,
+                  child: Icon(Icons.person, size: 80, color: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 20),
               DecoratedBox(
                 decoration: BoxDecoration(
                   color: ColorPalette.profile_background,

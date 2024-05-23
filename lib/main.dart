@@ -1,3 +1,4 @@
+import 'package:absensi_glagahwangi/data/repository/event_repository.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/AppBlocObserver.dart';
 import 'package:absensi_glagahwangi/presentation/pages/app.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,9 +16,10 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final authRepository = AuthRepository();
+  final eventRepository = EventRepository();
   await authRepository.user.first;
 
   runApp(App(
-    authRepository: authRepository,
+    authRepository: authRepository, eventRepository: eventRepository,
   ));
 }

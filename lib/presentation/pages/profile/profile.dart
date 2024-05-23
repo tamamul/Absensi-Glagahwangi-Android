@@ -1,6 +1,6 @@
 import 'package:absensi_glagahwangi/presentation/blocs/auth/auth_bloc.dart';
-import 'package:absensi_glagahwangi/presentation/pages/admin_only/sign_up.dart';
 import 'package:absensi_glagahwangi/presentation/pages/profile/change_password.dart';
+import 'package:absensi_glagahwangi/presentation/pages/profile/edit_profile.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_profile_button.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
@@ -23,11 +23,22 @@ class Profile extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 73,
-                // backgroundImage: AssetImage('assets/images/profile.png'),
-                backgroundColor: Colors.grey,
-                child: Icon(Icons.person, size: 80, color: Colors.white),
+              Container(
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 73,
+                  backgroundImage: NetworkImage(user.picture!),
+                  backgroundColor: Colors.grey,
+                  // child: Image.network(user.picture!),
+                ),
               ),
               SizedBox(height: 10),
               Text(
@@ -53,7 +64,14 @@ class Profile extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              CustomButton(text: "Edit Profile", onPressed: () {}),
+              CustomButton(text: "Edit Profile", onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfile(),
+                  ),
+                );
+              }),
               const SizedBox(
                 height: 20,
               ),
@@ -86,19 +104,6 @@ class Profile extends StatelessWidget {
                   );
                 },
               ),
-              // CustomProfileButton(
-              //   text: "Make Account (Delete Later)",
-              //   prefixIcon: CustomIcons.lock,
-              //   suffixIcon: Icons.arrow_forward_ios_rounded,
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) => SignUp(),
-              //       ),
-              //     );
-              //   },
-              // ),
               const SizedBox(
                 height: 5,
               ),

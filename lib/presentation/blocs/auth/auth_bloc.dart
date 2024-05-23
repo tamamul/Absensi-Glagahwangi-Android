@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../data/models/user.dart';
+import '../../../domain/entity/user.dart';
 import '../../../data/repository/auth_repository.dart';
 
 part 'auth_event.dart';

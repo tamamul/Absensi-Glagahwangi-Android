@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../models/user.dart';
+import '../../domain/entity/user.dart';
 
 class AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
@@ -65,7 +65,7 @@ extension FirebaseUserExtension on firebase_auth.User {
         email: email,
         displayName: userData?['name'] ?? '',
         phone: userData?['phone'] ?? '',
-        picture: userData?['picture'] ?? '',
+        picture: userData?['photoURL'] ?? '',
         role: userData?['role'] ?? '',
       );
     } else {

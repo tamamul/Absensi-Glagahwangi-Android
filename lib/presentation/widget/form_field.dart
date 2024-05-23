@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 class CustomFormField extends StatefulWidget {
   final String fieldName;
+  final String initialValue;
   final String label;
   final bool isPassword;
   final bool isPhone;
@@ -14,6 +15,7 @@ class CustomFormField extends StatefulWidget {
     super.key,
     required this.fieldName,
     required this.label,
+    this.initialValue = "",
     this.onChanged,
     this.isPassword = false,
     this.isPhone = false,
@@ -25,16 +27,15 @@ class CustomFormField extends StatefulWidget {
 }
 
 class _CustomFormFieldState extends State<CustomFormField> {
-  final TextEditingController _controller = TextEditingController();
 
   bool isObscure = true;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: _controller, // Use TextEditingController
-      onChanged: (value) => widget.onChanged?.call(value), // Call onChanged from state
+      onChanged: (value) => widget.onChanged?.call(value),
       obscureText: widget.isPassword && isObscure,
+      initialValue: widget.initialValue,
       inputFormatters: widget.isPhone ? [FilteringTextInputFormatter.digitsOnly] : [],
       keyboardType: widget.isPhone
           ? TextInputType.phone

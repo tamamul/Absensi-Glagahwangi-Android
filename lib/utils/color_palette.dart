@@ -12,4 +12,5 @@ class ColorPalette{
   static const Color stroke_menu = Color(0xFFDEDEDE);
   static const Color circle_menu = Color(0xFFDFE6E9);
   static const Color main_yellow = Color(0xFFFFC107);
+  static const Color bg = Color(0x87EFEFEF);
 }
