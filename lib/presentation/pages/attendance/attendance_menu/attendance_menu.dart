@@ -1,7 +1,7 @@
 import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 
-import '../../../utils/color_palette.dart';
+import '../../../../utils/color_palette.dart';
 
 class AttendanceMenu extends StatelessWidget {
   const AttendanceMenu({Key? key}) : super(key: key);

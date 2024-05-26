@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../data/repository/user_repository.dart';
 import '../../../utils/color_palette.dart';
+import '../../blocs/user/user_bloc.dart';
 import '../../widget/custom_button.dart';
 import '../../widget/form_field.dart';
 
@@ -9,6 +12,8 @@ class ForgetPassword extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -54,18 +59,20 @@ class ForgetPassword extends StatelessWidget {
                 Form(
                   child: Column(
                     children: [
-                      const CustomFormField(
+                      CustomFormField(
                         fieldName: "Email",
                         label: "Email",
                         isEmail: true,
+                        controller: emailController,
                       ),
                       const SizedBox(
                         height: 20,
                       ),
-                      CustomButton(
-                          text: "KIRIM",
-                          onPressed: () {
-                            {
+                      BlocProvider(
+                        create: (context) => UserBloc(userRepository: UserRepository()),
+                        child: BlocConsumer<UserBloc, UserState>(
+                          listener: (context, state) {
+                            if (state is UserForgetPasswordSuccess) {
                               final snackBar = SnackBar(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
@@ -85,10 +92,41 @@ class ForgetPassword extends StatelessWidget {
                                   textAlign: TextAlign.center,
                                 ),
                               );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
+                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            } else if (state is UserForgetPasswordFailure) {
+                              final snackBar = SnackBar(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
+                                behavior: SnackBarBehavior.floating,
+                                elevation: 4,
+                                backgroundColor: Colors.red,
+                                duration: Duration(seconds: 3),
+                                content: Text(
+                                  state.error,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "Manrope",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
+                                ),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
                             }
-                          }),
+                          },
+                          builder: (context, state) {
+                            return CustomButton(
+                              text: "KIRIM",
+                              onPressed: () {
+                                final email = emailController.text;
+                                context.read<UserBloc>().add(ForgetPasswordEvent(email));
+                              },
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'data/repository/auth_repository.dart';
+import 'data/repository/user_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -20,6 +21,6 @@ Future<void> main() async {
   await authRepository.user.first;
 
   runApp(App(
-    authRepository: authRepository, eventRepository: eventRepository,
+    authRepository: authRepository, eventRepository: eventRepository, userRepository: UserRepository(),
   ));
 }

@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../data/model/user_model.dart';
 import '../../../domain/entity/user.dart';
 import '../../../data/repository/auth_repository.dart';
 
@@ -17,9 +17,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       : _authRepository = authRepository,
         super(authRepository.currentUser.isNotEmpty
           ? AuthState.authenticated(authRepository.currentUser)
-            : const AuthState.unauthenticated()) {
+          : const AuthState.unauthenticated()) {
     on<AuthUserChanged>(_onUserChanged);
     on<AuthLogoutRequested>(_onLogoutRequested);
+    on<FetchUserData>(_onFetchUserData);
 
     _userSubscription = _authRepository.user.listen((user) {
       add(AuthUserChanged(user));
@@ -34,6 +35,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void _onLogoutRequested(AuthLogoutRequested event, Emitter<AuthState> emit) {
     unawaited(_authRepository.logOut());
+  }
+
+  Future<void> _onFetchUserData(FetchUserData event, Emitter<AuthState> emit) async {
+    try {
+      final user = await _authRepository.fetchUserData();
+      emit(user.isNotEmpty ? AuthState.authenticated(user) : const AuthState.unauthenticated());
+    } catch (e) {
+      emit(const AuthState.unauthenticated());
+    }
   }
 
   @override

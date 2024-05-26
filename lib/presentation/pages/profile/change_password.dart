@@ -4,7 +4,10 @@ import '../../widget/custom_button.dart';
 import '../../widget/form_field.dart';
 
 class ChangePassword extends StatelessWidget {
-  const ChangePassword({super.key});
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  ChangePassword({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,19 +46,25 @@ class ChangePassword extends StatelessWidget {
               const SizedBox(height: 20),
               CustomFormField(
                 label: "Password Baru",
-                isPassword: true,
                 fieldName: "New password",
+                isPassword: true,
+                controller: _newPasswordController,
               ),
               const SizedBox(height: 20),
               CustomFormField(
                 label: "Konfirmasi Password Baru",
-                isPassword: true,
                 fieldName: "password confirmation",
+                isPassword: true,
+                isConfirmPassword: true,
+                controller: _confirmPasswordController,
+                confirmPasswordController: _newPasswordController,
               ),
               const SizedBox(height: 20),
               CustomButton(
                 text: "Simpan",
-                onPressed: () {},
+                onPressed: () {
+                  // Handle save action here
+                },
               ),
             ],
           ),

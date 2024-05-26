@@ -19,22 +19,27 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size.fromHeight(50),
-        backgroundColor: buttonColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
+
+    return Visibility(
+      visible: !isKeyboardVisible,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size.fromHeight(50),
+          backgroundColor: buttonColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontFamily: "Manrope",
-          color: textColor,
-          fontWeight: FontWeight.w700,
-          fontSize: textSize,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontFamily: "Manrope",
+            color: textColor,
+            fontWeight: FontWeight.w700,
+            fontSize: textSize,
+          ),
         ),
       ),
     );

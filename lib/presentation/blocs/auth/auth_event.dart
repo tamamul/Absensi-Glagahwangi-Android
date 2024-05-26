@@ -19,3 +19,7 @@ class AuthUserChanged extends AuthEvent {
   @override
   List<Object> get props => [user];
 }
+
+class FetchUserData extends AuthEvent {
+  const FetchUserData();
+}

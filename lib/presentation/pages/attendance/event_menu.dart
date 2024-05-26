@@ -1,11 +1,9 @@
-import 'package:absensi_glagahwangi/presentation/blocs/holiday/event_event.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../data/repository/event_repository.dart';
 import '../../blocs/holiday/event_bloc.dart';
-import '../../blocs/holiday/event_state.dart';
 
 class Holiday extends StatelessWidget {
   const Holiday({Key? key}) : super(key: key);

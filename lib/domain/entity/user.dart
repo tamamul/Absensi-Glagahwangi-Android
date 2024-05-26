@@ -23,4 +23,15 @@ class User extends Equatable {
 
   @override
   List<Object?> get props => [id, email, displayName, phone, role, picture];
+
+  copyWith({required String displayName, required String email, required String phone}) {
+    return User(
+      id: this.id,
+      displayName: displayName,
+      email: email,
+      phone: phone,
+      role: this.role,
+      picture: this.picture,
+    );
+  }
 }

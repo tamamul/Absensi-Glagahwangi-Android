@@ -1,7 +1,9 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/repository/event_repository.dart';
-import 'event_event.dart';
-import 'event_state.dart';
+import '../../../domain/entity/event.dart';
+part 'event_event.dart';
+part 'event_state.dart';
 
 class EventBloc extends Bloc<EventEvent, EventState> {
   final EventRepository eventRepository;
@@ -14,9 +16,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     emit(EventLoading());
     try {
       final events = await eventRepository.fetchEvents();
-      for (var event in events) {
-        print('EEEEEEEEEEEEEEEEEEEE: ${event.name}');
-      }
       emit(EventLoaded(events: events));
     } catch (e) {
       print('Error: $e');

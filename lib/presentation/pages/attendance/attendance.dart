@@ -1,3 +1,6 @@
+import 'package:absensi_glagahwangi/data/repository/user_repository.dart';
+import 'package:absensi_glagahwangi/presentation/blocs/auth/auth_bloc.dart';
+import 'package:absensi_glagahwangi/presentation/blocs/user/user_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/attendance_recap.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/event_menu.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/permission_form.dart';
@@ -8,20 +11,20 @@ import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/repository/event_repository.dart';
 import '../../blocs/holiday/event_bloc.dart';
-import '../../blocs/holiday/event_event.dart';
-import '../../blocs/holiday/event_state.dart';
-import 'attendance_menu.dart';
+import 'attendance_menu/attendance_menu.dart';
 
 class Attendance extends StatelessWidget {
   const Attendance({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
     return MultiBlocProvider(
       providers: [
         BlocProvider<EventBloc>(
           create: (context) => EventBloc(eventRepository: EventRepository())..add(FetchEvents()),
         ),
+        BlocProvider<UserBloc>(create: (context) => UserBloc(userRepository: UserRepository())..add(FetchUser(authUser.id!)),)
       ],
       child: Scaffold(
         body: Padding(
@@ -29,48 +32,60 @@ class Attendance extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [
-                CircleAvatar(
-                  radius: 35,
-                  // backgroundImage: AssetImage('assets/images/profile.png'),
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, size: 35, color: Colors.white),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Nama Lengkap",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontFamily: "Manrope",
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+              BlocBuilder<UserBloc,UserState>(
+                builder: (context, state) {
+                  if (state is UserInitial || state is UserLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }else if(state is UserLoaded){
+                    return Row(children: [
+                      CircleAvatar(
+                        radius: 35,
+                        backgroundImage: NetworkImage(state.user.picture),
+                        backgroundColor: Colors.grey,
+                        // child: Icon(Icons.person, size: 35, color: Colors.white),
                       ),
-                    ),
-                    Text(
-                      "Posisi",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontFamily: "Manrope",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            state.user.name,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Manrope",
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            state.user.role,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontFamily: "Manrope",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Text(
-                  DateFormat("dd - MM - yyyy").format(DateTime.now()),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontFamily: "Manrope",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ]),
+                      const Spacer(),
+                      Text(
+                        DateFormat("dd - MM - yyyy").format(DateTime.now()),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontFamily: "Manrope",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ]);
+                  }else if (state is UserError) {
+                    return Center(child: Text('Error: ${state.message}'));
+                  } else {
+                    return Center(child: Text('No user found'));
+                  }
+                }
+              ),
               const SizedBox(
                 height: 20,
               ),
