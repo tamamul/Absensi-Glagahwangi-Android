@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'data/repository/auth_repository.dart';
+import 'data/repository/map_repository.dart';
 import 'data/repository/user_repository.dart';
 import 'firebase_options.dart';
 
@@ -17,10 +18,12 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final authRepository = AuthRepository();
+  final userRepository = UserRepository();
+  final mapRepository = MapRepository();
   final eventRepository = EventRepository();
   await authRepository.user.first;
 
   runApp(App(
-    authRepository: authRepository, eventRepository: eventRepository, userRepository: UserRepository(),
+    authRepository: authRepository, eventRepository: eventRepository, userRepository: userRepository, mapRepository: mapRepository,
   ));
 }
