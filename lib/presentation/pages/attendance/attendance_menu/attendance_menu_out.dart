@@ -1,25 +1,28 @@
 import 'dart:io';
-
 import 'package:absensi_glagahwangi/presentation/pages/attendance/attendance_menu/maps.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:intl/intl.dart';
+import '../../../../data/repository/attendance_repository.dart';
 import '../../../../data/repository/map_repository.dart';
 import '../../../../utils/color_palette.dart';
+import '../../../blocs/auth/auth_bloc.dart';
 import '../../../blocs/maps/maps_bloc.dart';
+import '../../../blocs/attendance/attendance_bloc.dart';
 
-class AttendanceMenu extends StatefulWidget {
-  const AttendanceMenu({Key? key}) : super(key: key);
+class AttendanceMenuOut extends StatefulWidget {
+  const AttendanceMenuOut({Key? key}) : super(key: key);
 
   @override
-  _AttendanceMenuState createState() => _AttendanceMenuState();
+  _AttendanceMenuOutState createState() => _AttendanceMenuOutState();
 }
 
-class _AttendanceMenuState extends State<AttendanceMenu> {
+class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
+  String locationText = "Loading...";
 
   Future<void> _takePhoto() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
@@ -30,10 +33,25 @@ class _AttendanceMenuState extends State<AttendanceMenu> {
     }
   }
 
+  String _formatTime(DateTime dateTime) {
+    final DateFormat formatter = DateFormat('HH:mm');
+    return formatter.format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MapsBloc(MapRepository())..add(GetCurrentLocationEvent()),
+    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final attendanceRepository = AttendanceRepository(); // Ensure this is properly instantiated
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => MapsBloc(MapRepository())..add(GetCurrentLocationEvent()),
+        ),
+        BlocProvider(
+          create: (context) => AttendanceBloc(attendanceRepository),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -46,7 +64,7 @@ class _AttendanceMenuState extends State<AttendanceMenu> {
             },
           ),
           title: const Text(
-            "Menu Absen",
+            "Menu Absen Keluar",
             style: TextStyle(
               color: Colors.black,
               fontFamily: "Manrope",
@@ -83,18 +101,17 @@ class _AttendanceMenuState extends State<AttendanceMenu> {
               const SizedBox(height: 3),
               BlocBuilder<MapsBloc, MapsState>(
                 builder: (context, state) {
-                  String locationText = "Loading...";
                   if (state is MapsInsideGeofence) {
                     locationText = state.locationName;
                   } else if (state is MapsOutsideGeofence) {
                     locationText = state.locationName;
                   } else if (state is MapsInitial) {
-                    locationText = "Unable to fetch location";
+                    locationText = "Fetching Location.....";
                   }
 
                   return Container(
                     width: double.infinity,
-                    height: 100, // Increased height of the container
+                    height: 100,
                     decoration: BoxDecoration(
                       border: Border.all(color: ColorPalette.stroke_menu),
                       borderRadius: BorderRadius.circular(10),
@@ -102,7 +119,7 @@ class _AttendanceMenuState extends State<AttendanceMenu> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Align(
-                        alignment: Alignment.centerLeft, // Align text to the center vertically
+                        alignment: Alignment.centerLeft,
                         child: Text(
                           locationText,
                           maxLines: 5,
@@ -161,7 +178,7 @@ class _AttendanceMenuState extends State<AttendanceMenu> {
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
                     "Klik gambar untuk mengambil ulang foto",
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black,
                       fontFamily: "Manrope",
                       fontSize: 16,
@@ -170,7 +187,43 @@ class _AttendanceMenuState extends State<AttendanceMenu> {
                   ),
                 ),
               const Spacer(),
-              CustomButton(text: "Absen", onPressed: () {}),
+              BlocConsumer<AttendanceBloc, AttendanceState>(
+                listener: (context, state) {
+                  if (state is AttendanceSuccess) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Attendance recorded successfully!')),
+                    );
+                    Navigator.pop(context); // Navigate back to the previous page
+                  } else if (state is AttendanceFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${state.error}')),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  final bool isButtonDisabled = _image == null || locationText == "Loading..." || locationText == "Unable to fetch location";
+
+                  return CustomButton(
+                    text: state is AttendanceLoading ? "Loading..." : "Absen Keluar",
+                    onPressed: !isButtonDisabled
+                        ? () {
+                      String formattedTime = _formatTime(DateTime.now());
+                      context.read<AttendanceBloc>().add(RecordAttendanceOut(
+                        authUser.id!,
+                        DateTime.now(),
+                        locationText,
+                        _image!.path,
+                      ));
+                    }
+                        : () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please take a photo and wait for the location to load before submitting.')),
+                      );
+                    },
+                    buttonColor: isButtonDisabled ? Colors.grey : ColorPalette.main_green,
+                  );
+                },
+              ),
               const Spacer(),
             ],
           ),

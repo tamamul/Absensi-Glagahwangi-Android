@@ -1,5 +1,8 @@
+import 'package:absensi_glagahwangi/data/repository/attendance_repository.dart';
 import 'package:absensi_glagahwangi/data/repository/auth_repository.dart';
 import 'package:absensi_glagahwangi/data/repository/event_repository.dart';
+import 'package:absensi_glagahwangi/presentation/blocs/attendance/attendance_bloc.dart';
+import 'package:absensi_glagahwangi/presentation/blocs/attendance/attendance_data/attendance_data_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/holiday/event_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/maps/maps_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/user/user_bloc.dart';
@@ -16,18 +19,21 @@ class App extends StatelessWidget {
   final EventRepository _eventRepository;
   final UserRepository _userRepository;
   final MapRepository _mapRepository;
+  final AttendanceRepository _attendanceRepository;
 
   const App({
-    Key? key,
+    super.key,
     required AuthRepository authRepository,
     required EventRepository eventRepository,
     required UserRepository userRepository,
     required MapRepository mapRepository,
+    required AttendanceRepository attendanceRepository,
+
   })  : _authRepository = authRepository,
         _eventRepository = eventRepository,
         _userRepository = userRepository,
         _mapRepository = mapRepository,
-        super(key: key);
+        _attendanceRepository = attendanceRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +43,7 @@ class App extends StatelessWidget {
         RepositoryProvider.value(value: _eventRepository),
         RepositoryProvider.value(value: _userRepository),
         RepositoryProvider.value(value: _mapRepository),
+        RepositoryProvider.value(value: _attendanceRepository)
       ],
       child: MultiBlocProvider(
         providers: [
@@ -52,6 +59,12 @@ class App extends StatelessWidget {
           BlocProvider<MapsBloc>(
             create: (context) => MapsBloc(_mapRepository),
           ),
+          BlocProvider<AttendanceBloc>(
+            create: (context) => AttendanceBloc(_attendanceRepository),
+          ),
+          BlocProvider<AttendanceDataBloc>(
+            create: (context) => AttendanceDataBloc(_attendanceRepository),
+          )
         ],
         child: const AppView(),
       ),
