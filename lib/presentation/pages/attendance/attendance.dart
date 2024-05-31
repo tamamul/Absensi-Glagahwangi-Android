@@ -2,6 +2,7 @@ import 'package:absensi_glagahwangi/data/repository/user_repository.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/auth/auth_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/user/user_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/attendance_recap.dart';
+import 'package:absensi_glagahwangi/presentation/pages/attendance/dinas_form.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/event_menu.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/permission_form.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
@@ -18,7 +19,7 @@ import 'attendance_menu/attendance_menu_out.dart';
 import '../../blocs/attendance/attendance_bloc.dart';
 
 class Attendance extends StatefulWidget {
-  const Attendance({Key? key}) : super(key: key);
+  const Attendance({super.key});
 
   @override
   _AttendanceState createState() => _AttendanceState();
@@ -27,6 +28,9 @@ class Attendance extends StatefulWidget {
 class _AttendanceState extends State<Attendance> {
   bool _hasCheckedIn = false;
   bool _hasCheckedOut = false;
+  bool _hasPermission = false;
+  bool _hasDinas = false;
+  bool isSwitchOn = false;
 
   @override
   void initState() {
@@ -36,8 +40,12 @@ class _AttendanceState extends State<Attendance> {
 
   void _checkAttendanceStatus() {
     final authUser = context.read<AuthBloc>().state.user;
-    context.read<AttendanceBloc>().add(CheckAttendanceStatus(authUser.id!, DateTime.now()));
-    context.read<AttendanceDataBloc>().add(FetchAttendanceForDate(authUser.id!, DateTime.now()));
+    context
+        .read<AttendanceBloc>()
+        .add(CheckAttendanceStatus(authUser.id!, DateTime.now()));
+    context
+        .read<AttendanceDataBloc>()
+        .add(FetchAttendanceForDate(authUser.id!, DateTime.now()));
   }
 
   @override
@@ -46,10 +54,12 @@ class _AttendanceState extends State<Attendance> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<EventBloc>(
-          create: (context) => EventBloc(eventRepository: EventRepository())..add(FetchEvents()),
+          create: (context) =>
+              EventBloc(eventRepository: EventRepository())..add(FetchEvents()),
         ),
         BlocProvider<UserBloc>(
-          create: (context) => UserBloc(userRepository: UserRepository())..add(FetchUser(authUser.id!)),
+          create: (context) => UserBloc(userRepository: UserRepository())
+            ..add(FetchUser(authUser.id!)),
         ),
       ],
       child: Scaffold(
@@ -131,7 +141,8 @@ class _AttendanceState extends State<Attendance> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AttendanceRecap(uid: authUser.id!),
+                          builder: (context) =>
+                              AttendanceRecap(uid: authUser.id!),
                         ),
                       );
                     },
@@ -163,40 +174,47 @@ class _AttendanceState extends State<Attendance> {
                         _buildAttendanceCard(
                           "Masuk",
                           Icons.input_rounded,
-                          attendanceStatus != null && attendanceStatus != 'absen'
+                          attendanceStatus != null &&
+                                  attendanceStatus != 'absen'
                               ? attendanceStatus
                               : inData != null
-                              ? inData['time'] ?? "Belum"
-                              : "Belum",
-                          attendanceStatus != null && attendanceStatus != 'absen'
+                                  ? inData['time'] ?? "Belum"
+                                  : "Belum",
+                          attendanceStatus != null &&
+                                  attendanceStatus != 'absen'
                               ? "---"
                               : inData != null
-                              ? inData['status'] ?? "---"
-                              : "---",
+                                  ? inData['status'] ?? "---"
+                                  : "---",
                         ),
                         const SizedBox(width: 10),
                         _buildAttendanceCard(
                           "Keluar",
                           Icons.output_rounded,
-                          attendanceStatus != null && attendanceStatus != 'absen'
+                          attendanceStatus != null &&
+                                  attendanceStatus != 'absen'
                               ? attendanceStatus
                               : outData != null
-                              ? outData['time'] ?? "Belum"
-                              : "Belum",
-                          attendanceStatus != null && attendanceStatus != 'absen'
+                                  ? outData['time'] ?? "Belum"
+                                  : "Belum",
+                          attendanceStatus != null &&
+                                  attendanceStatus != 'absen'
                               ? "---"
                               : outData != null
-                              ? "Pulang"
-                              : "---",
+                                  ? "Pulang"
+                                  : "---",
                         ),
                       ],
                     );
-                  } else if (state is AttendanceDataEmpty || state is AttendanceDataFailure) {
+                  } else if (state is AttendanceDataEmpty ||
+                      state is AttendanceDataFailure) {
                     return Row(
                       children: [
-                        _buildAttendanceCard("Masuk", Icons.input_rounded, "Belum", "---"),
+                        _buildAttendanceCard(
+                            "Masuk", Icons.input_rounded, "Belum", "---"),
                         const SizedBox(width: 10),
-                        _buildAttendanceCard("Keluar", Icons.output_rounded, "Belum", "---"),
+                        _buildAttendanceCard(
+                            "Keluar", Icons.output_rounded, "Belum", "---"),
                       ],
                     );
                   } else {
@@ -225,21 +243,27 @@ class _AttendanceState extends State<Attendance> {
                     ),
                   ),
                   const SizedBox(width: 2),
-                  Icon(
-                    Icons.info_outline_rounded,
-                    color: ColorPalette.main_text,
-                    size: 20,
+                  Tooltip(
+                    message: "Lembur hanya bisa diaktifkan setelah jam 11:45 dan sudah presensi masuk, Jangan lupa untuk klik presensi keluar setelah selesai lembur.",
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      color: ColorPalette.main_text,
+                      size: 20,
+                    ),
                   ),
                   const Spacer(),
                   Switch(
-                    activeColor: ColorPalette.main_green,
-                    activeTrackColor: ColorPalette.navbar_off,
+                    activeColor: Colors.white,
+                    activeTrackColor: ColorPalette.main_green,
                     inactiveThumbColor: Colors.blueGrey.shade600,
                     inactiveTrackColor: Colors.grey.shade400,
                     splashRadius: 50.0,
-                    value: true,
+                    value: isSwitchOn,
                     onChanged: (bool value) {
-                      // do something
+                      setState(() {
+                        isSwitchOn = value;
+                      });
+                      // Add your onChanged logic here
                     },
                   ),
                 ],
@@ -311,7 +335,8 @@ class _AttendanceState extends State<Attendance> {
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: Text(
-                                  event.date.toString(), // Format the date as needed
+                                  event.date.toString(),
+                                  // Format the date as needed
                                   style: const TextStyle(
                                     color: Colors.black,
                                     fontFamily: "Manrope",
@@ -333,9 +358,9 @@ class _AttendanceState extends State<Attendance> {
                 },
               ),
               const Spacer(),
-              Text(
+              const Text(
                 "Absensi",
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.black,
                   fontFamily: "Manrope",
                   fontSize: 20,
@@ -346,99 +371,269 @@ class _AttendanceState extends State<Attendance> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      height: 210,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: ColorPalette.circle_menu),
-                        color: ColorPalette.main_green,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Status Dinas",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Manrope",
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
+                    child: BlocBuilder<AttendanceBloc, AttendanceState>(
+                      builder: (context, state) {
+                        if (state is AttendanceLoading) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (state is AttendanceStatusChecked) {
+                          if (state.hasDinas) {
+                            return Container(
+                              height: 210,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: ColorPalette.circle_menu),
+                                color: ColorPalette.main_green,
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              "Aktifkan untuk tugas dinas atau pekerjaan terkait",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Manrope",
-                                fontSize: 18,
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Status Dinas",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    const Text(
+                                      "Aktifkan untuk tugas dinas atau pekerjaan terkait",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    CustomButton(
+                                      text: "Aktif",
+                                      onPressed: () {},
+                                      textSize: 18,
+                                      textColor: ColorPalette.main_green,
+                                      buttonColor: Colors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            CustomButton(
-                              text: "Aktifkan",
-                              onPressed: () {},
-                              textSize: 18,
-                              textColor: ColorPalette.main_green,
-                              buttonColor: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
+                            );
+                          } else if (state.hasPermission &&
+                              state.permissionStatus == "approved") {
+                            return Container(
+                              height: 210,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: ColorPalette.circle_menu),
+                                color: ColorPalette.main_green,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Status Dinas",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    const Text(
+                                      "Aktifkan untuk tugas dinas atau pekerjaan terkait",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    CustomButton(
+                                      text: "Sedang Izin",
+                                      onPressed: () {},
+                                      textSize: 18,
+                                      textColor: ColorPalette.main_green,
+                                      buttonColor: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Container(
+                              height: 210,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: ColorPalette.circle_menu),
+                                color: ColorPalette.main_green,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Status Dinas",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    const Text(
+                                      "Aktifkan untuk tugas dinas atau pekerjaan terkait",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    CustomButton(
+                                      text: "Aktifkan",
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const DinasForm(),
+                                          ),
+                                        );
+                                      },
+                                      textSize: 18,
+                                      textColor: ColorPalette.main_green,
+                                      buttonColor: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Container(
-                      height: 210,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: ColorPalette.circle_menu),
-                        color: ColorPalette.navbar_off,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Izin Absen",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Manrope",
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
+                    child: BlocBuilder<AttendanceBloc, AttendanceState>(
+                      builder: (context, state) {
+                        if (state is AttendanceLoading) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (state is AttendanceStatusChecked) {
+                          if (state.hasDinas) {
+                            return Container(
+                              height: 210,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: ColorPalette.circle_menu),
+                                color: ColorPalette.navbar_off,
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              "Isi form untuk meminta izin absen",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Manrope",
-                                fontSize: 18,
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Izin Absen",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    const Text(
+                                      "Isi form untuk meminta izin absen",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    CustomButton(
+                                      text: "Sedang Dinas",
+                                      onPressed: () {},
+                                      textSize: 18,
+                                      textColor: ColorPalette.navbar_off,
+                                      buttonColor: Colors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            CustomButton(
-                              text: "Ajukan Izin",
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PermissionForm(),
-                                  ),
-                                );
-                              },
-                              textSize: 18,
-                              textColor: ColorPalette.navbar_off,
-                              buttonColor: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
+                            );
+                          } else {
+                            return Container(
+                              height: 210,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: ColorPalette.circle_menu),
+                                color: ColorPalette.navbar_off,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Izin Absen",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    const Text(
+                                      "Isi form untuk meminta izin absen",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Manrope",
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    CustomButton(
+                                      text: "Ajukan Izin",
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const PermissionForm(),
+                                          ),
+                                        );
+                                      },
+                                      textSize: 18,
+                                      textColor: ColorPalette.navbar_off,
+                                      buttonColor: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
                     ),
                   ),
                 ],
@@ -451,8 +646,54 @@ class _AttendanceState extends State<Attendance> {
                   } else if (state is AttendanceStatusChecked) {
                     _hasCheckedIn = state.checkedIn;
                     _hasCheckedOut = state.checkedOut;
+                    _hasPermission = state.hasPermission;
+                    _hasDinas = state.hasDinas;
 
-                    if (_hasCheckedIn && _hasCheckedOut) {
+                    if (_hasPermission && !_hasCheckedIn && !_hasCheckedOut) {
+                      if (state.permissionStatus == "pending") {
+                        return CustomButton(
+                          text: "Izin Absen Sedang Diproses",
+                          onPressed: () {},
+                          textSize: 15,
+                          textColor: Colors.white,
+                          buttonColor: ColorPalette.main_yellow,
+                        );
+                      } else if (state.permissionStatus == "approved") {
+                        return CustomButton(
+                          text: "Izin Diterima",
+                          onPressed: () {},
+                          textSize: 15,
+                          textColor: Colors.white,
+                          buttonColor: Colors.grey,
+                        );
+                      } else {
+                        return CustomButton(
+                          text:
+                              "Izin Ditolak, Masuk Absen atau Ajukan Izin Ulang",
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AttendanceMenuIn(),
+                              ),
+                            ).then((_) {
+                              _checkAttendanceStatus();
+                            });
+                          },
+                          textSize: 15,
+                          textColor: Colors.white,
+                          buttonColor: Colors.red,
+                        );
+                      }
+                    } else if (_hasDinas) {
+                      return CustomButton(
+                        text: "Sedang Dinas",
+                        onPressed: () {},
+                        textSize: 15,
+                        textColor: Colors.white,
+                        buttonColor: Colors.grey,
+                      );
+                    } else if (_hasCheckedIn && _hasCheckedOut) {
                       return CustomButton(
                         text: "Sudah absen hari ini",
                         onPressed: () {},
@@ -462,7 +703,9 @@ class _AttendanceState extends State<Attendance> {
                       );
                     } else {
                       return CustomButton(
-                        text: _hasCheckedIn ? "\u25CF Tekan Untuk Presensi Keluar" : "\u25CF Tekan Untuk Presensi Masuk",
+                        text: _hasCheckedIn
+                            ? "\u25CF Tekan Untuk Presensi Keluar"
+                            : "\u25CF Tekan Untuk Presensi Masuk",
                         onPressed: () {
                           if (_hasCheckedIn) {
                             Navigator.push(
@@ -471,7 +714,7 @@ class _AttendanceState extends State<Attendance> {
                                 builder: (context) => const AttendanceMenuOut(),
                               ),
                             ).then((_) {
-                              _checkAttendanceStatus(); // Update the state after coming back from AttendanceMenu or AttendanceMenuOut
+                              _checkAttendanceStatus();
                             });
                           } else {
                             Navigator.push(
@@ -480,13 +723,15 @@ class _AttendanceState extends State<Attendance> {
                                 builder: (context) => const AttendanceMenuIn(),
                               ),
                             ).then((_) {
-                              _checkAttendanceStatus(); // Update the state after coming back from AttendanceMenu or AttendanceMenuOut
+                              _checkAttendanceStatus();
                             });
                           }
                         },
                         textSize: 15,
                         textColor: _hasCheckedIn ? Colors.black : Colors.white,
-                        buttonColor: _hasCheckedIn ? ColorPalette.main_yellow : ColorPalette.main_green,
+                        buttonColor: _hasCheckedIn
+                            ? ColorPalette.main_yellow
+                            : ColorPalette.main_green,
                       );
                     }
                   } else {
@@ -502,7 +747,8 @@ class _AttendanceState extends State<Attendance> {
   }
 }
 
-Widget _buildAttendanceCard(String title, IconData icon, String time, String status) {
+Widget _buildAttendanceCard(
+    String title, IconData icon, String time, String status) {
   return Expanded(
     child: Container(
       height: 120,

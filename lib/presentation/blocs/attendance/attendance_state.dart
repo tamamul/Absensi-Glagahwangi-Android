@@ -25,11 +25,14 @@ class AttendanceFailure extends AttendanceState {
 class AttendanceStatusChecked extends AttendanceState {
   final bool checkedIn;
   final bool checkedOut;
+  final bool hasPermission;
+  final bool hasDinas;
+  final String permissionStatus;
 
-  const AttendanceStatusChecked(this.checkedIn, this.checkedOut);
+  const AttendanceStatusChecked(this.checkedIn, this.checkedOut, this.hasPermission, this.hasDinas, this.permissionStatus);
 
   @override
-  List<Object> get props => [checkedIn, checkedOut];
+  List<Object> get props => [checkedIn, checkedOut, hasPermission, hasDinas];
 }
 
 class AttendanceListFetched extends AttendanceState {
