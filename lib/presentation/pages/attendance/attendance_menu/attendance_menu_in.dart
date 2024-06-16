@@ -34,11 +34,6 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
     }
   }
 
-  String _formatTime(DateTime dateTime) {
-    final DateFormat formatter = DateFormat('HH:mm');
-    return formatter.format(dateTime);
-  }
-
   @override
   Widget build(BuildContext context) {
     final authUser = context.select((AuthBloc bloc) => bloc.state.user);
@@ -162,7 +157,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                 onTap: _takePhoto,
                 child: Container(
                   width: double.infinity,
-                  height: 550,
+                  height: 450,
                   decoration: BoxDecoration(
                     border: Border.all(color: ColorPalette.stroke_menu),
                     borderRadius: BorderRadius.circular(10),
@@ -228,7 +223,6 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                     text: state is AttendanceLoading ? "Loading..." : "Absen Masuk",
                     onPressed: !isButtonDisabled
                         ? () {
-                      String formattedTime = _formatTime(DateTime.now());
                       context.read<AttendanceBloc>().add(RecordAttendanceIn(
                         authUser.id!,
                         DateTime.now(),

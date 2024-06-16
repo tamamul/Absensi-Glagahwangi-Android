@@ -41,15 +41,6 @@ class CheckAttendanceStatus extends AttendanceEvent {
   List<Object> get props => [uid, date];
 }
 
-class FetchAttendanceList extends AttendanceEvent {
-  final String uid;
-
-  const FetchAttendanceList(this.uid);
-
-  @override
-  List<Object> get props => [uid];
-}
-
 class SubmitPermissionForm extends AttendanceEvent {
   final String uid;
   final DateTime date;
@@ -74,3 +65,26 @@ class SubmitDinasForm extends AttendanceEvent {
   @override
   List<Object> get props => [uid, date, description, filePath];
 }
+
+class RecordOvertime extends AttendanceEvent {
+  final String uid;
+  final DateTime date;
+
+  const RecordOvertime(this.uid, this.date);
+
+  @override
+  List<Object> get props => [uid, date];
+}
+
+class ForgetAttendance extends AttendanceEvent {
+  final String uid;
+  final DateTime date;
+  final String filePath;
+  final String description;
+
+  const ForgetAttendance(this.uid, this.date, this.filePath, this.description);
+
+  @override
+  List<Object> get props => [uid, date, filePath, description];
+}
+

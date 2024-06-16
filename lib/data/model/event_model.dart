@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+
+import '../../domain/entity/event.dart';
 
 class EventModel extends Equatable {
   final String id;
@@ -8,7 +9,8 @@ class EventModel extends Equatable {
 
   EventModel({required this.id, required this.name, required this.date});
 
-  factory EventModel.fromFirestore(Map<String, dynamic> data, String documentId) {
+  factory EventModel.fromFirestore(
+      Map<String, dynamic> data, String documentId) {
     return EventModel(
       id: documentId,
       name: data['name'] ?? '',
@@ -25,4 +27,8 @@ class EventModel extends Equatable {
 
   @override
   List<Object?> get props => [id, name, date];
+
+  EventEntity toEntity() {
+    return EventEntity(id: id, name: name, date: date);
+  }
 }

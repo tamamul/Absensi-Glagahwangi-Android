@@ -14,11 +14,13 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Bloc.observer = const AppBlocObserver();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  Bloc.observer = const AppBlocObserver();
+
   final authRepository = AuthRepository();
   final userRepository = UserRepository();
   final mapRepository = MapRepository();
@@ -27,7 +29,7 @@ Future<void> main() async {
 
   var user = await authRepository.user.first;
 
-  AutomaticTask automaticTask = AutomaticTask(attendanceRepository);
+  AutomaticTask automaticTask = AutomaticTask(attendanceRepository,eventRepository);
   automaticTask.scheduleAutomaticAttendanceCheck(user.id!);
 
   runApp(App(

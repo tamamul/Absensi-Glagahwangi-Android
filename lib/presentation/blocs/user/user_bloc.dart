@@ -13,7 +13,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<FetchUser>(_onFetchUser);
     on<UpdateUser>(_onUpdateUser);
     on<UpdateUserImage>(_onUpdateUserImage);
-    on<ForgetPasswordEvent>(_onForgetPassword);
+    on<ChangePasswordEvent>(_onChangePassword);
   }
 
   void _onFetchUser(FetchUser event, Emitter<UserState> emit) async {
@@ -43,13 +43,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  void _onForgetPassword(ForgetPasswordEvent event, Emitter<UserState> emit) async {
-    emit(UserForgetPasswordLoading());
+  void _onChangePassword(ChangePasswordEvent event, Emitter<UserState> emit) async {
+    emit(UserUpdateLoading());
     try {
-      await userRepository.forgetPasswordEvent(event.email);
-      emit(UserForgetPasswordSuccess());
+      await userRepository.reauthenticateUser(event.email, event.oldPassword);
+      await userRepository.updatePassword(event.newPassword);
+      emit(UserUpdateSuccess());
     } catch (e) {
-      emit(UserForgetPasswordFailure('Failed to send reset password email'));
+      emit(UserUpdateFailure('Failed to change password: ${e.toString()}'));
     }
   }
 }

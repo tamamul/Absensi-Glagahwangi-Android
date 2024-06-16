@@ -11,6 +11,7 @@ import 'package:absensi_glagahwangi/presentation/widget/custom_icons.dart';
 import '../../../data/repository/user_repository.dart';
 import '../../blocs/user/user_bloc.dart';
 import 'detail_profile.dart';
+import 'forgot_attendance.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -46,13 +47,13 @@ class Profile extends StatelessWidget {
                         ),
                         child: CircleAvatar(
                           radius: 73,
-                          backgroundImage: NetworkImage(user.picture ?? ''),
+                          backgroundImage: NetworkImage(user.picture),
                           backgroundColor: Colors.grey,
                         ),
                       ),
                       SizedBox(height: 10),
                       Text(
-                        user.name ?? "Nama Lengkap",
+                        user.name,
                         style: TextStyle(
                           color: ColorPalette.main_text,
                           fontFamily: "Manrope",
@@ -62,7 +63,7 @@ class Profile extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       Text(
-                        user.role ?? "Posisi",
+                        user.role,
                         style: const TextStyle(
                           color: ColorPalette.secondary_text,
                           fontFamily: "Manrope",
@@ -112,7 +113,7 @@ class Profile extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChangePassword(),
+                              builder: (context) => ChangePassword(email: user.email,),
                             ),
                           );
                         },
@@ -122,7 +123,14 @@ class Profile extends StatelessWidget {
                         text: "Lupa Absen",
                         prefixIcon: CustomIcons.forgot,
                         suffixIcon: Icons.arrow_forward_ios_rounded,
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ForgotAttendance(),
+                            ),
+                          );
+                        },
                       ),
                       CustomLogoutButton(
                         text: "Log Out",

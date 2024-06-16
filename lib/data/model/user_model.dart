@@ -7,6 +7,7 @@ class UserModel extends Equatable {
   final String email;
   final String phone;
   final String role;
+  final String alamat;
   final String picture;
   final String password;
 
@@ -15,13 +16,14 @@ class UserModel extends Equatable {
     required this.name,
     required this.email,
     required this.phone,
+    required this.alamat,
     required this.role,
     required this.picture,
     this.password = '',
   });
 
   @override
-  List<Object> get props => [id, name, email, phone, role, picture];
+  List<Object> get props => [id, name, email, phone, role, picture, alamat];
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map<String, dynamic>;
@@ -32,6 +34,7 @@ class UserModel extends Equatable {
       phone: data['phone'] ?? '',
       role: data['role'] ?? '',
       picture: data['photoURL'] ?? '',
+      alamat: data['alamat'] ?? '',
     );
   }
 
@@ -42,15 +45,17 @@ class UserModel extends Equatable {
       'phone': phone,
       'role': role,
       'picture': picture,
+      'alamat': alamat,
     };
   }
 
-  copyWith({required String name, required String email, required String phone}) {
+  copyWith({required String name, required String email, required String phone, required String alamat}) {
     return UserModel(
       id: this.id,
       name: name,
       email: email,
       phone: phone,
+      alamat: this.alamat,
       role: this.role,
       picture: this.picture,
     );

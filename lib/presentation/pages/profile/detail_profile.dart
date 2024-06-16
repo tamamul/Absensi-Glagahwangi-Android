@@ -71,13 +71,19 @@ class FullProfile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _buildProfileItem("Nama", user.name ?? "Nama Lengkap"),
+                      _buildProfileItem("Nama", user.name),
                       const SizedBox(height: 20),
-                      _buildProfileItem("Posisi", user.role ?? "Posisi"),
+                      _buildProfileItem("Posisi", user.role),
                       const SizedBox(height: 20),
-                      _buildProfileItem("E-mail", user.email ?? ""),
+                      _buildProfileItem("E-mail", user.email),
                       const SizedBox(height: 20),
-                      _buildProfileItem("No. HP", user.phone == "" ? "-" : user.phone ?? "-"),
+                      _buildProfileItem("No. HP", user.phone == "" ? "-" : user.phone),
+                      const SizedBox(height: 20),
+                      _buildProfileItem(
+                        "Alamat",
+                        user.alamat == "" ? "-" : user.alamat,
+                        isMultiLine: true,
+                      ),
                     ],
                   ),
                 ),
@@ -93,17 +99,18 @@ class FullProfile extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileItem(String label, String value) {
+  Widget _buildProfileItem(String label, String value, {bool isMultiLine = false}) {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: ColorPalette.profile_background,
         borderRadius: BorderRadius.circular(10),
       ),
       child: SizedBox(
-        height: 50,
+        height: isMultiLine ? null : 50,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: isMultiLine ? 10.0 : 0),
           child: Row(
+            crossAxisAlignment: isMultiLine ? CrossAxisAlignment.start : CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -114,13 +121,18 @@ class FullProfile extends StatelessWidget {
                   fontSize: 18,
                 ),
               ),
-              Text(
-                value,
-                style: const TextStyle(
-                  color: ColorPalette.main_text,
-                  fontFamily: "Manrope",
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+              SizedBox(
+                width: 200,
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    color: ColorPalette.main_text,
+                    fontFamily: "Manrope",
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: isMultiLine ? 3 : 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

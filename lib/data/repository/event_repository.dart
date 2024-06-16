@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entity/event.dart';
@@ -10,18 +9,14 @@ class EventRepository {
 
   Future<List<EventEntity>> fetchEvents() async {
     try {
-      QuerySnapshot querySnapshot = await _eventsCollection.get();
+      QuerySnapshot querySnapshot = await _eventsCollection
+          .orderBy('date', descending: true) // Order by date in descending order
+          .get();
       return querySnapshot.docs.map((doc) {
         return EventModel.fromFirestore(doc.data() as Map<String, dynamic>, doc.id).toEntity();
       }).toList();
     } catch (e) {
       throw Exception('Error fetching events: $e');
     }
-  }
-}
-
-extension on EventModel {
-  EventEntity toEntity() {
-    return EventEntity(id: id, name: name, date: date);
   }
 }

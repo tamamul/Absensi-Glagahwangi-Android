@@ -43,3 +43,14 @@ class ForgetPasswordEvent extends UserEvent {
   @override
   List<Object> get props => [email];
 }
+
+class ChangePasswordEvent extends UserEvent {
+  final String email;
+  final String oldPassword;
+  final String newPassword;
+
+  const ChangePasswordEvent(this.email, this.oldPassword, this.newPassword);
+
+  @override
+  List<Object> get props => [email, oldPassword, newPassword];
+}

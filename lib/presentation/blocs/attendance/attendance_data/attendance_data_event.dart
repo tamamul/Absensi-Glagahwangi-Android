@@ -19,9 +19,20 @@ class FetchAttendanceForDate extends AttendanceDataEvent {
 
 class FetchAttendanceList extends AttendanceDataEvent {
   final String uid;
+  final String? month; // Optional month parameter
 
-  const FetchAttendanceList(this.uid);
+  const FetchAttendanceList(this.uid, {this.month});
 
   @override
-  List<Object> get props => [uid];
+  List<Object> get props => [uid, month ?? ''];
+}
+
+class FetchAttendanceForMonth extends AttendanceDataEvent {
+  final String uid;
+  final String month;
+
+  const FetchAttendanceForMonth(this.uid, this.month);
+
+  @override
+  List<Object> get props => [uid, month];
 }

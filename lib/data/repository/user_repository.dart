@@ -91,7 +91,7 @@ class UserRepository {
         });
 
         // Update the user model with the new email
-        user = user.copyWith(email: email, name: user.name, phone: user.phone);
+        user = user.copyWith(email: email, name: user.name, phone: user.phone, alamat: user.alamat);
       }
 
       return user;
@@ -99,6 +99,25 @@ class UserRepository {
       print('Error fetching user: $e');
       rethrow;
     }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    User? firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) {
+      throw Exception('No user currently authenticated. Please log in again.');
+    }
+
+    await firebaseUser.updatePassword(newPassword);
+  }
+
+  Future<void> reauthenticateUser(String email, String password) async {
+    User? firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) {
+      throw Exception('No user currently authenticated. Please log in again.');
+    }
+
+    AuthCredential credential = EmailAuthProvider.credential(email: email, password: password);
+    await firebaseUser.reauthenticateWithCredential(credential);
   }
 
 

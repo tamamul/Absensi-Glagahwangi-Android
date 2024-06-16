@@ -11,10 +11,14 @@ class CustomFormField extends StatefulWidget {
   final bool isPhone;
   final bool isEmail;
   final bool isConfirmPassword;
+  final bool readOnly;
+  final bool isMultiLine;
+  final VoidCallback? onTap;
   final Function(String)? onChanged;
+  final String? errorMessage;
 
   const CustomFormField({
-    super.key,
+    Key? key,
     required this.fieldName,
     required this.label,
     this.controller,
@@ -25,7 +29,11 @@ class CustomFormField extends StatefulWidget {
     this.isPhone = false,
     this.isEmail = false,
     this.isConfirmPassword = false,
-  });
+    this.readOnly = false,
+    this.onTap,
+    this.isMultiLine = false,
+    this.errorMessage,
+  }) : super(key: key);
 
   @override
   _CustomFormFieldState createState() => _CustomFormFieldState();
@@ -87,28 +95,44 @@ class _CustomFormFieldState extends State<CustomFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: _controller,
-      onChanged: (value) => widget.onChanged?.call(value),
-      obscureText: widget.isPassword && isObscure,
-      keyboardType: widget.isEmail ? TextInputType.emailAddress : TextInputType.text,
-      decoration: inputDecoration(
-        labelText: widget.label,
-        suffixIcon: widget.isPassword
-            ? IconButton(
-          icon: Icon(
-            isObscure ? Icons.visibility_off : Icons.visibility,
-            color: Colors.black.withOpacity(0.9),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: _controller,
+          onChanged: (value) => widget.onChanged?.call(value),
+          obscureText: widget.isPassword && isObscure,
+          readOnly: widget.readOnly,
+          onTap: widget.onTap,
+          maxLines: widget.isMultiLine ? null : 1,
+          keyboardType: widget.isMultiLine ? TextInputType.multiline : (widget.isEmail ? TextInputType.emailAddress : TextInputType.text),
+          decoration: inputDecoration(
+            labelText: widget.label,
+            suffixIcon: widget.isPassword
+                ? IconButton(
+              icon: Icon(
+                isObscure ? Icons.visibility_off : Icons.visibility,
+                color: Colors.black.withOpacity(0.9),
+              ),
+              onPressed: () {
+                setState(() {
+                  isObscure = !isObscure;
+                });
+              },
+            )
+                : null,
           ),
-          onPressed: () {
-            setState(() {
-              isObscure = !isObscure;
-            });
-          },
-        )
-            : null,
-      ),
-      validator: _validateField,
+          validator: _validateField,
+        ),
+        if (widget.errorMessage != null && widget.errorMessage!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Text(
+              widget.errorMessage!,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -129,10 +153,11 @@ InputDecoration inputDecoration({
             borderRadius: BorderRadius.circular(8.0),
           ),
       border: border ?? const OutlineInputBorder(borderSide: BorderSide()),
-      focusedBorder: focusedBorder ?? OutlineInputBorder(
-        borderSide: const BorderSide(width: 2.0),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
+      focusedBorder: focusedBorder ??
+          OutlineInputBorder(
+            borderSide: const BorderSide(width: 2.0),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
       fillColor: fillColor ?? Colors.white,
       filled: filled ?? true,
       suffixIcon: suffixIcon,

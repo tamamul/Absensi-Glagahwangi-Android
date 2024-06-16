@@ -18,12 +18,14 @@ class MapsBloc extends Bloc<MapsEvent, MapsState> {
 
   MapsBloc(this._mapRepository) : super(MapsInitial()) {
     on<GetCurrentLocationEvent>(_onGetCurrentLocationEvent);
-    on<CheckGeofenceEvent>(_onCheckGeofenceEvent);
   }
 
   Future<void> _onGetCurrentLocationEvent(GetCurrentLocationEvent event, Emitter<MapsState> emit) async {
     emit(MapsLoadInProgress());
     try {
+      // Initialize the geofence radius from Firebase
+      await _mapRepository.initializeGeofenceRadius();
+
       Position position = await _mapRepository.getCurrentLocation();
       LatLng currentLatLng = LatLng(position.latitude, position.longitude);
       String locationName = await _mapRepository.getLocationName(position);
@@ -33,7 +35,6 @@ class MapsBloc extends Bloc<MapsEvent, MapsState> {
       };
 
       Circle geofenceCircle = _mapRepository.getGeofenceCircle();
-
 
       emit(MapsLoadSuccess());
 
@@ -62,9 +63,5 @@ class MapsBloc extends Bloc<MapsEvent, MapsState> {
     } catch (e) {
       emit(MapsInitial());
     }
-  }
-
-  Future<void> _onCheckGeofenceEvent(CheckGeofenceEvent event, Emitter<MapsState> emit) async {
-
   }
 }

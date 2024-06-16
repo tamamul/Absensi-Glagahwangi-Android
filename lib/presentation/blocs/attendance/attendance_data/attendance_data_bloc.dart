@@ -11,6 +11,7 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
   AttendanceDataBloc(this.attendanceRepository) : super(AttendanceDataInitial()) {
     on<FetchAttendanceForDate>(_onFetchAttendanceForDate);
     on<FetchAttendanceList>(_onFetchAttendanceList);
+    on<FetchAttendanceForMonth>(_onFetchAttendanceForMonth);
   }
 
   Future<void> _onFetchAttendanceForDate(FetchAttendanceForDate event, Emitter<AttendanceDataState> emit) async {
@@ -27,6 +28,16 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
     emit(AttendanceDataLoading());
     try {
       final attendanceList = await attendanceRepository.fetchAttendanceList(event.uid);
+      emit(AttendanceListFetched(attendanceList));
+    } catch (e) {
+      emit(AttendanceDataFailure(e.toString()));
+    }
+  }
+
+  Future<void> _onFetchAttendanceForMonth(FetchAttendanceForMonth event, Emitter<AttendanceDataState> emit) async {
+    emit(AttendanceDataLoading());
+    try {
+      final attendanceList = await attendanceRepository.fetchAttendanceListForMonth(event.uid, event.month);
       emit(AttendanceListFetched(attendanceList));
     } catch (e) {
       emit(AttendanceDataFailure(e.toString()));

@@ -24,6 +24,7 @@ class EditProfile extends StatelessWidget {
     final TextEditingController _nameController = TextEditingController();
     final TextEditingController _emailController = TextEditingController();
     final TextEditingController _phoneController = TextEditingController();
+    final TextEditingController _alamatController = TextEditingController();
 
     final authState = context.read<AuthBloc>().state;
     context.read<UserBloc>().add(FetchUser(authState.user.id!));
@@ -76,9 +77,10 @@ class EditProfile extends StatelessWidget {
                 return Center(child: CircularProgressIndicator());
               } else if (state is UserLoaded) {
                 final user = state.user;
-                _nameController.text = user.name ?? '';
-                _emailController.text = user.email ?? '';
-                _phoneController.text = user.phone ?? '';
+                _nameController.text = user.name;
+                _emailController.text = user.email;
+                _phoneController.text = user.phone;
+                _alamatController.text = user.alamat;
                 final _photoURL = user.picture;
                 final _image = state.imageFile;
 
@@ -134,13 +136,13 @@ class EditProfile extends StatelessWidget {
                                 controller: _phoneController,
                                 isPhone: true,
                               ),
-                              // SizedBox(height: 20),
-                              // CustomFormField(
-                              //   label: "E-Mail",
-                              //   fieldName: "E-Mail",
-                              //   controller: _emailController,
-                              //   isEmail: true,
-                              // ),
+                              const SizedBox(height: 20),
+                              CustomFormField(
+                                label: "Alamat",
+                                fieldName: "Alamat",
+                                controller: _alamatController,
+                                isMultiLine: true,
+                              ),
                               const SizedBox(height: 20),
                               Text(
                                 "Hubungi Admin Untuk Mengubah E-Mail",
@@ -163,6 +165,7 @@ class EditProfile extends StatelessWidget {
                             name: _nameController.text,
                             email: _emailController.text,
                             phone: _phoneController.text,
+                            alamat: _alamatController.text,
                           );
                           context.read<UserBloc>().add(UpdateUser(updatedUser, imageFile: _image));
                         }

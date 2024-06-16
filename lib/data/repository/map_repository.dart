@@ -1,11 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapRepository {
-  final double geofenceRadius = 10.0;
   final LatLng geofenceCenter = LatLng(-7.6481967, 110.6633733);
+  double geofenceRadius = 10.0;
+
+  Future<void> initializeGeofenceRadius() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+          .collection('geofence_radius')
+          .doc('radius_document')
+          .get();
+
+      if (snapshot.exists && snapshot.data() != null) {
+        geofenceRadius = snapshot.data()!['radius']?.toDouble() ?? geofenceRadius;
+      }
+    } catch (e) {
+      print("Error fetching geofence radius: $e");
+    }
+  }
 
   Future<Position> getCurrentLocation() async {
     bool serviceEnabled;
@@ -39,7 +55,6 @@ class MapRepository {
   Future<String> getLocationName(Position position) async {
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
-    print(placemark);
     return "${placemark.name}, ${placemark.street} ${placemark.subLocality}, ${placemark.locality}, ${placemark.postalCode}, lat:${position.latitude}, long:${position.longitude}";
   }
 

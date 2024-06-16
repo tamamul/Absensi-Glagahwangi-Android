@@ -16,7 +16,8 @@ class AttendanceRecap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AttendanceDataBloc(context.read<AttendanceRepository>())
+      create: (context) =>
+      AttendanceDataBloc(context.read<AttendanceRepository>())
         ..add(FetchAttendanceList(uid)),
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -46,15 +47,22 @@ class AttendanceRecap extends StatelessWidget {
                 try {
                   final directory = await getExternalStorageDirectory();
                   if (directory != null) {
-                    final downloadPath = Directory('/storage/emulated/0/Download');
-                    final filePath = '${downloadPath.path}/attendance_recap.csv';
-                    await context.read<AttendanceRepository>().exportAttendanceToCsv(uid, filePath);
+                    final downloadPath =
+                    Directory('/storage/emulated/0/Download');
+                    final filePath =
+                        '${downloadPath.path}/attendance_recap.csv';
+                    await context
+                        .read<AttendanceRepository>()
+                        .exportAttendanceToCsv(uid, filePath);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('CSV exported successfully to $filePath')),
+                      SnackBar(
+                          content:
+                          Text('CSV exported successfully to $filePath')),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Unable to access storage directory')),
+                      SnackBar(
+                          content: Text('Unable to access storage directory')),
                     );
                   }
                 } catch (e) {
@@ -74,6 +82,19 @@ class AttendanceRecap extends StatelessWidget {
               if (state is AttendanceDataLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is AttendanceListFetched) {
+                if (state.attendanceList.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "Belum Ada Data",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: "Manrope",
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  );
+                }
                 return SingleChildScrollView(
                   child: Column(
                     children: state.attendanceList.map((attendanceData) {
@@ -84,7 +105,17 @@ class AttendanceRecap extends StatelessWidget {
               } else if (state is AttendanceDataFailure) {
                 return Center(child: Text(state.error));
               } else {
-                return const Center(child: Text("No data available."));
+                return const Center(
+                  child: Text(
+                    "Belum Ada Data",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: "Manrope",
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
               }
             },
           ),
@@ -103,27 +134,69 @@ class AttendanceRecap extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _buildDateCircle(attendanceData['date']),
-          const VerticalDivider(
-            indent: 10,
-            endIndent: 10,
-            color: Colors.black,
-            thickness: 0.2,
+          SizedBox(
+            width: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildDateCircle(attendanceData['date']),
+                const SizedBox(width: 13),
+                const VerticalDivider(
+                  indent: 10,
+                  endIndent: 10,
+                  color: Colors.black,
+                  thickness: 0.2,
+                ),
+              ],
+            ),
           ),
-          _buildInInfo(attendanceData['in']),
-          const VerticalDivider(
-            indent: 10,
-            endIndent: 10,
-            color: Colors.black,
-            thickness: 0.2,
+          Expanded(
+            child: attendanceData.containsKey('in') &&
+                attendanceData.containsKey('out')
+                ? Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildInInfo(attendanceData['in']),
+                const VerticalDivider(
+                  indent: 10,
+                  endIndent: 10,
+                  color: Colors.black,
+                  thickness: 0.2,
+                ),
+                _buildOutInfo(attendanceData['out']),
+              ],
+            )
+                : Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildStatusInfo(attendanceData),
+              ],
+            ),
           ),
-          _buildOutInfo(attendanceData['out']),
         ],
       ),
     );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    return months[month - 1];
   }
 
   Widget _buildDateCircle(String date) {
@@ -166,119 +239,153 @@ class AttendanceRecap extends StatelessWidget {
     );
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return months[month - 1];
-  }
-
   Widget _buildInInfo(Map<String, dynamic> inData) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 35,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: ColorPalette.circle_menu,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(1, 0, 12, 0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 35,
+                height: 30,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: ColorPalette.circle_menu,
+                ),
+                child: Icon(
+                  Icons.input_rounded,
+                  size: 20,
+                  color: ColorPalette.main_green,
+                ),
               ),
-              child: Icon(
-                Icons.input_rounded,
-                size: 20,
-                color: ColorPalette.main_green,
+              const SizedBox(width: 10),
+              Text(
+                "Masuk",
+                style: TextStyle(
+                  color: ColorPalette.secondary_text,
+                  fontFamily: "Manrope",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              "Masuk",
-              style: TextStyle(
-                color: ColorPalette.secondary_text,
-                fontFamily: "Manrope",
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        Text(
-          inData['time'],
-          style: const TextStyle(
-            color: Colors.black,
-            fontFamily: "Manrope",
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
+            ],
           ),
-        ),
-        Text(
-          inData['status'],
-          style: const TextStyle(
-            color: Colors.black,
-            fontFamily: "Manrope",
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+          Text(
+            inData['time'] ?? '',
+            style: const TextStyle(
+              color: Colors.black,
+              fontFamily: "Manrope",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        )
-      ],
+          Text(
+            (inData['status'] != 'absen' && inData['status'] != 'lembur')
+                ? inData['status'] ?? ''
+                : '',
+            style: const TextStyle(
+              color: Colors.black,
+              fontFamily: "Manrope",
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          )
+        ],
+      ),
     );
   }
 
   Widget _buildOutInfo(Map<String, dynamic> outData) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 35,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: ColorPalette.circle_menu,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 35,
+                height: 30,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: ColorPalette.circle_menu,
+                ),
+                child: Icon(
+                  Icons.output_rounded,
+                  size: 20,
+                  color: ColorPalette.main_green,
+                ),
               ),
-              child: Icon(
-                Icons.output_rounded,
-                size: 20,
-                color: ColorPalette.main_green,
+              const SizedBox(width: 10),
+              Text(
+                "Keluar",
+                style: TextStyle(
+                  color: ColorPalette.secondary_text,
+                  fontFamily: "Manrope",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              "Keluar",
-              style: TextStyle(
-                color: ColorPalette.secondary_text,
-                fontFamily: "Manrope",
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        Text(
-          outData['time'],
-          style: const TextStyle(
-            color: Colors.black,
-            fontFamily: "Manrope",
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
+            ],
           ),
-        ),
-        const Text(
-          "Pulang",
-          style: TextStyle(
-            color: Colors.black,
-            fontFamily: "Manrope",
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+          Text(
+            outData['time'] ?? '',
+            style: const TextStyle(
+              color: Colors.black,
+              fontFamily: "Manrope",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        )
-      ],
+          Text(
+            (outData['status'] != 'absen' && outData['status'] != 'lembur')
+                ? outData['status'] ?? 'Pulang'
+                : 'Pulang',
+            style: const TextStyle(
+              color: Colors.black,
+              fontFamily: "Manrope",
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusInfo(Map<String, dynamic> attendanceData) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 1),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            textAlign: TextAlign.start,
+            attendanceData['description'] ?? '',
+            style: TextStyle(
+              color: ColorPalette.secondary_text,
+              fontFamily: "Manrope",
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          Text(
+            textAlign: TextAlign.start,
+            attendanceData['attendanceStatus'] ?? '',
+            style: const TextStyle(
+              color: Colors.black,
+              fontFamily: "Manrope",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

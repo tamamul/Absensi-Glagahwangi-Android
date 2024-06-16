@@ -27,19 +27,13 @@ class AttendanceStatusChecked extends AttendanceState {
   final bool checkedOut;
   final bool hasPermission;
   final bool hasDinas;
+  final bool hasOvertime;
   final String permissionStatus;
+  final String dinasStatus;
+  final bool isAlfa;
 
-  const AttendanceStatusChecked(this.checkedIn, this.checkedOut, this.hasPermission, this.hasDinas, this.permissionStatus);
-
-  @override
-  List<Object> get props => [checkedIn, checkedOut, hasPermission, hasDinas];
-}
-
-class AttendanceListFetched extends AttendanceState {
-  final List<Map<String, dynamic>> attendanceList;
-
-  const AttendanceListFetched(this.attendanceList);
+  const AttendanceStatusChecked(this.checkedIn, this.checkedOut, this.hasPermission, this.hasDinas, this.hasOvertime, this.dinasStatus, this.permissionStatus, this.isAlfa);
 
   @override
-  List<Object> get props => [attendanceList];
+  List<Object> get props => [checkedIn, checkedOut, hasPermission, hasDinas, hasOvertime, dinasStatus, permissionStatus, isAlfa];
 }

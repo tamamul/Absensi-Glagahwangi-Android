@@ -13,4 +13,10 @@ class ColorPalette{
   static const Color circle_menu = Color(0xFFDFE6E9);
   static const Color main_yellow = Color(0xFFFFC107);
   static const Color bg = Color(0x87EFEFEF);
+
+  //Chart
+  static const Color absen = Color(0xFFA3D139);
+  static const Color dinas = Color(0xFF9B59B6);
+  static const Color izin = Color(0xFF30BEB6);
+  static const Color alfa = Color(0xFFFF7F74);
 }
