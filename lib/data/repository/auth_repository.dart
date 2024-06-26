@@ -60,7 +60,7 @@ class AuthRepository {
       return User.empty;
     } else {
       final user = await _fetchUserData(firebaseUser);
-      _userController.add(user);  // Add the fetched user to the stream
+      _userController.add(user);
       return user;
     }
   }
@@ -72,7 +72,7 @@ class AuthRepository {
       return User(
         id: firebaseUser.uid,
         email: firebaseUser.email ?? '',
-        displayName: userData?['name'] ?? '',
+        name: userData?['name'] ?? '',
         phone: userData?['phone'] ?? '',
         picture: userData?['photoURL'] ?? '',
         role: userData?['role'] ?? '',

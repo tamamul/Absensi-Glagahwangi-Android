@@ -19,7 +19,7 @@ class FetchAttendanceForDate extends AttendanceDataEvent {
 
 class FetchAttendanceList extends AttendanceDataEvent {
   final String uid;
-  final String? month; // Optional month parameter
+  final String? month;
 
   const FetchAttendanceList(this.uid, {this.month});
 

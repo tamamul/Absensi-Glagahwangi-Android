@@ -62,7 +62,7 @@ class Holiday extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontFamily: "Manrope",
-                                  fontSize: 20,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
@@ -73,7 +73,7 @@ class Holiday extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontFamily: "Manrope",
-                                  fontSize: 18,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),

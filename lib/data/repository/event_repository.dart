@@ -10,7 +10,7 @@ class EventRepository {
   Future<List<EventEntity>> fetchEvents() async {
     try {
       QuerySnapshot querySnapshot = await _eventsCollection
-          .orderBy('date', descending: true) // Order by date in descending order
+          .orderBy('date', descending: true)
           .get();
       return querySnapshot.docs.map((doc) {
         return EventModel.fromFirestore(doc.data() as Map<String, dynamic>, doc.id).toEntity();

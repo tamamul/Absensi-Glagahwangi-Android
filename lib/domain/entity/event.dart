@@ -5,7 +5,7 @@ class EventEntity extends Equatable {
   final String name;
   final String date;
 
-  EventEntity({required this.id, required this.name, required this.date});
+  const EventEntity({required this.id, required this.name, required this.date});
 
   @override
   List<Object?> get props => [id, name, date];

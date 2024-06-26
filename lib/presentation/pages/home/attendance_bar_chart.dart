@@ -49,7 +49,7 @@ class AttendanceLineChartState extends State<AttendanceLineChart> {
             child: LineChart(
               LineChartData(
                 maxX: 12,
-                maxY: 20,
+                maxY: 25,
                 minX: 1,
                 minY: 0,
                 titlesData: FlTitlesData(
@@ -174,6 +174,8 @@ class AttendanceLineChartState extends State<AttendanceLineChart> {
       text = '15';
     } else if (value == 20) {
       text = '20';
+    } else if (value == 25){
+      text = '25';
     } else {
       return Container();
     }

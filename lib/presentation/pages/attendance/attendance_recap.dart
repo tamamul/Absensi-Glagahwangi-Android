@@ -48,16 +48,14 @@ class AttendanceRecap extends StatelessWidget {
                   final directory = await getExternalStorageDirectory();
                   if (directory != null) {
                     final downloadPath =
-                    Directory('/storage/emulated/0/Download');
-                    final filePath =
-                        '${downloadPath.path}/attendance_recap.csv';
+                    '/storage/emulated/0/Download';
                     await context
                         .read<AttendanceRepository>()
-                        .exportAttendanceToCsv(uid, filePath);
+                        .exportAttendanceToExcel(uid, downloadPath);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content:
-                          Text('CSV exported successfully to $filePath')),
+                          Text('CSV exported successfully to $downloadPath')),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

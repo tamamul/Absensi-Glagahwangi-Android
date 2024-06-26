@@ -268,7 +268,7 @@ class Indicator extends StatelessWidget {
               style: TextStyle(
                 fontFamily: "Manrope",
                 color: textColor,
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -277,7 +277,7 @@ class Indicator extends StatelessWidget {
               style: TextStyle(
                 fontFamily: "Manrope",
                 color: textColor,
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
             ),

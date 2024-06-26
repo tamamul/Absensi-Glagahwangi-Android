@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:excel/excel.dart' as exc;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:csv/csv.dart';
+import 'package:path/path.dart' as p;
+import 'package:flutter/cupertino.dart';
 
 class AttendanceRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,10 +14,8 @@ class AttendanceRepository {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
-    // Upload image to Firebase Storage
     String imageUrl = await _uploadImageAndGetUrl(uid, imagePath, 'in');
 
-    // Determine status
     String status = date.hour < 9 ? 'Tepat Waktu' : 'Terlambat';
 
     Map<String, dynamic> inData = {
@@ -42,7 +42,6 @@ class AttendanceRepository {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
-    // Upload image to Firebase Storage
     String imageUrl = await _uploadImageAndGetUrl(uid, imagePath, 'out');
 
     Map<String, dynamic> outData = {
@@ -143,7 +142,7 @@ class AttendanceRepository {
 
   Future<List<Map<String, dynamic>>> fetchAttendanceListForMonth(String uid, String month) async {
     String startDate = '$month-01';
-    String endDate = '$month-31'; // Adjust this to handle month end correctly if necessary
+    String endDate = '$month-31';
 
     QuerySnapshot snapshot = await _firestore.collection('attendance')
         .where('uid', isEqualTo: uid)
@@ -166,20 +165,38 @@ class AttendanceRepository {
     return null;
   }
 
-  Future<void> exportAttendanceToCsv(String uid, String outputPath) async {
+  Future<void> exportAttendanceToExcel(String uid, String outputPath) async {
     List<Map<String, dynamic>> attendanceList = await fetchAttendanceList(uid);
 
-    List<List<dynamic>> rows = [];
-    rows.add([
-      "UID",
-      "Date",
-      "Check-in Time",
-      "Check-in Location",
-      "Check-in Status",
-      "Check-out Time",
-      "Check-out Location",
-      "Attendance Status",
-    ]);
+    String userName = await fetchUserNameByUid(uid);
+
+    var excel = exc.Excel.createExcel();
+
+    var sheet = excel['Attendance'];
+    var headerStyle = exc.CellStyle(
+      backgroundColorHex: exc.ExcelColor.amber,
+      fontColorHex: exc.ExcelColor.white,
+      bold: true,
+      horizontalAlign: exc.HorizontalAlign.Center,
+      verticalAlign: exc.VerticalAlign.Center,
+    );
+
+    List<String> headers = [
+      'Name',
+      'Date',
+      'Check-in Time',
+      'Check-in Location',
+      'Check-in Status',
+      'Check-out Time',
+      'Check-out Location',
+      'Attendance Status',
+    ];
+
+    for (int i = 0; i < headers.length; i++) {
+      var cell = sheet.cell(exc.CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0));
+      cell.value = exc.TextCellValue(headers[i]);
+      cell.cellStyle = headerStyle;
+    }
 
     for (var attendance in attendanceList) {
       String date = attendance['date'] ?? '';
@@ -187,8 +204,8 @@ class AttendanceRepository {
       Map<String, dynamic> outData = attendance['out'] ?? {};
       String attendanceStatus = attendance['attendanceStatus'] ?? 'absen';
 
-      rows.add([
-        uid,
+      List<dynamic> row = [
+        userName,
         date,
         inData['time'] ?? '',
         inData['location'] ?? '',
@@ -196,13 +213,49 @@ class AttendanceRepository {
         outData['time'] ?? '',
         outData['location'] ?? '',
         attendanceStatus,
-      ]);
+      ];
+
+      int currentRow = sheet.maxRows;
+
+      for (int i = 0; i < row.length; i++) {
+        var cell = sheet.cell(exc.CellIndex.indexByColumnRow(columnIndex: i, rowIndex: currentRow));
+        cell.value =  exc.TextCellValue(row[i]);
+        cell.cellStyle = exc.CellStyle(
+          bottomBorder: exc.Border(
+            borderStyle: exc.BorderStyle.Medium,
+            borderColorHex: exc.ExcelColor.black,
+          ),
+          topBorder: exc.Border(
+            borderStyle: exc.BorderStyle.Medium,
+            borderColorHex: exc.ExcelColor.black,
+          ),
+          leftBorder: exc.Border(
+            borderStyle: exc.BorderStyle.Medium,
+            borderColorHex: exc.ExcelColor.black,
+          ),
+          rightBorder: exc.Border(
+            borderStyle: exc.BorderStyle.Medium,
+            borderColorHex: exc.ExcelColor.black,
+          ),
+        );
+      }
     }
 
-    String csvData = const ListToCsvConverter().convert(rows);
+    var fileBytes = excel.save();
+    File(p.join(outputPath, 'attendance.xlsx'))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(fileBytes!);
+  }
 
-    File file = File(outputPath);
-    await file.writeAsString(csvData);
+  Future<String> fetchUserNameByUid(String uid) async {
+    var userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (userDoc.exists) {
+      var userData = userDoc.data();
+      return userData?['name'] ?? 'Unknown User';
+    }
+
+    return 'Unknown User';
   }
 
   Future<void> submitPermissionForm(String uid, DateTime date, String type, String description, String imagePath) async {
@@ -261,7 +314,6 @@ class AttendanceRepository {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
-    // Upload file to Firebase Storage
     String fileUrl = await _uploadFileAndGetUrl(uid, filePath, 'dinas');
 
     Map<String, dynamic> dinasData = {
@@ -396,10 +448,8 @@ class AttendanceRepository {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
-    // Upload file to Firebase Storage with the new path and file name
     String fileUrl = await _uploadFileAndGetUrl(uid, filePath, 'forgot_attendance');
 
-    // Save the data to Firestore
     CollectionReference attendanceCollection = FirebaseFirestore.instance.collection('forgot_attendance');
     await attendanceCollection.doc(documentId).set({
       'id': documentId,

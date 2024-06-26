@@ -30,13 +30,11 @@ class AutomaticTask {
       print("Checking for automatic attendance at $now...");
       print("Current event dates: $eventDates");
 
-      // Check if today is Saturday (6) or Sunday (7)
       if (now.weekday == DateTime.saturday || now.weekday == DateTime.sunday) {
         print("Skipping automatic attendance check on weekends.");
         return;
       }
 
-      // Check if today is an event date
       bool isEventDate = eventDates.any((date) =>
       date.year == now.year && date.month == now.month && date.day == now.day);
 

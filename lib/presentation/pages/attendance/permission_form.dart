@@ -230,6 +230,8 @@ class _PermissionFormState extends State<PermissionForm> {
 List<DropdownMenuItem<String>> get dropdownItems {
   return [
     DropdownMenuItem(child: Text("Sakit"), value: "Sakit"),
-    DropdownMenuItem(child: Text("Izin"), value: "Izin"),
+    DropdownMenuItem(child: Text("Izin Pribadi"), value: "Izin"),
+    DropdownMenuItem(child: Text("Cuti"), value: "Cuti"),
+    DropdownMenuItem(child: Text("Lainnya"), value: "Lainnya"),
   ];
 }

@@ -57,15 +57,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
       if(hasDinas) {
         dinasStatus = await attendanceRepository.checkDinasStatus(event.uid, event.date);
-        emit(AttendanceStatusChecked(checkedIn, checkedOut, hasPermission, hasDinas, hasOvertime, dinasStatus!, permissionStatus, alfa));
       }
 
       if (hasPermission) {
         permissionStatus = await attendanceRepository.checkPermissionStatus(event.uid, event.date);
-        emit(AttendanceStatusChecked(checkedIn, checkedOut, hasPermission, hasDinas, hasOvertime, dinasStatus, permissionStatus!, alfa));
       }
 
-      emit(AttendanceStatusChecked(checkedIn, checkedOut, hasPermission, hasDinas, hasOvertime, dinasStatus, permissionStatus, alfa));
+      emit(AttendanceStatusChecked(checkedIn, checkedOut, hasPermission, hasDinas, hasOvertime, dinasStatus!, permissionStatus!, alfa));
     } catch (e) {
       emit(AttendanceFailure(e.toString()));
     }

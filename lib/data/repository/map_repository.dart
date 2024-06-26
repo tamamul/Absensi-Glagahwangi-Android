@@ -69,7 +69,7 @@ class MapRepository {
 
   Marker getCurrentLocationMarker(LatLng currentLatLng, String locationName) {
     return Marker(
-      markerId: MarkerId('currentLocation'),
+      markerId: const MarkerId('currentLocation'),
       position: currentLatLng,
       infoWindow: InfoWindow(title: 'My Location', snippet: locationName),
     );

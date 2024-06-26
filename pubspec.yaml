@@ -59,6 +59,7 @@ dependencies:
   file_picker: ^8.0.3
   firebase_app_check: ^0.2.2+7
   fl_chart: ^0.68.0
+  excel: ^4.0.3
 
 dev_dependencies:
   flutter_test:
