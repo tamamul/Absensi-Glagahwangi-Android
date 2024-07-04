@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:absensi_glagahwangi/data/repository/attendance_repository.dart';
-import 'package:absensi_glagahwangi/data/repository/event_repository.dart';
-import 'package:absensi_glagahwangi/domain/entity/event.dart';
+import 'package:absensi_glagahwangi/data/repository/holiday_repository.dart';
+import 'package:absensi_glagahwangi/domain/entity/holiday.dart';
+import 'package:flutter/foundation.dart';
 
 class AutomaticTask {
   final AttendanceRepository attendanceRepository;
-  final EventRepository eventRepository;
+  final HolidayRepository eventRepository;
   List<DateTime> eventDates = [];
 
   AutomaticTask(this.attendanceRepository, this.eventRepository) {
@@ -14,13 +15,14 @@ class AutomaticTask {
 
   Future<void> _fetchEventDates() async {
     try {
-      List<EventEntity> events = await eventRepository.fetchEvents();
+      List<Holiday> events = await eventRepository.getHolidays();
       eventDates = events.map((event) {
         return DateTime.parse(event.date);
       }).toList();
-      print('Fetched event dates: $eventDates');
     } catch (e) {
-      print('Error fetching event dates: $e');
+      if (kDebugMode) {
+        print('Error fetching event dates: $e');
+      }
     }
   }
 

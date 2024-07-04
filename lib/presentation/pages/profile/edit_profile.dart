@@ -9,7 +9,7 @@ import '../../../utils/color_palette.dart';
 import '../../blocs/auth/auth_bloc.dart';
 
 class EditProfile extends StatelessWidget {
-  const EditProfile({Key? key}) : super(key: key);
+  const EditProfile({super.key});
 
   Future<void> _pickImage(BuildContext context) async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -20,14 +20,14 @@ class EditProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    final TextEditingController _nameController = TextEditingController();
-    final TextEditingController _emailController = TextEditingController();
-    final TextEditingController _phoneController = TextEditingController();
-    final TextEditingController _alamatController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController phoneController = TextEditingController();
+    final TextEditingController alamatController = TextEditingController();
 
     final authState = context.read<AuthBloc>().state;
-    context.read<UserBloc>().add(FetchUser(authState.user.id!));
+    context.read<UserBloc>().add(FetchUser(authState.user.id));
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -57,7 +57,7 @@ class EditProfile extends StatelessWidget {
           listener: (context, state) {
             if (state is UserUpdateSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Profile updated successfully')),
+                const SnackBar(content: Text('Profile updated successfully')),
               );
               Navigator.pop(context, true); // Pass true as result
             } else if (state is UserUpdateFailure) {
@@ -74,27 +74,27 @@ class EditProfile extends StatelessWidget {
           child: BlocBuilder<UserBloc, UserState>(
             builder: (context, state) {
               if (state is UserLoading || state is UserUpdateLoading) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (state is UserLoaded) {
                 final user = state.user;
-                _nameController.text = user.name;
-                _emailController.text = user.email;
-                _phoneController.text = user.phone;
-                _alamatController.text = user.alamat;
-                final _photoURL = user.picture;
-                final _image = state.imageFile;
+                nameController.text = user.name;
+                emailController.text = user.email;
+                phoneController.text = user.phone;
+                alamatController.text = user.alamat;
+                final photoURL = user.picture;
+                final image = state.imageFile;
 
                 return Column(
                   children: [
                     Expanded(
                       child: SingleChildScrollView(
                         child: Form(
-                          key: _formKey,
+                          key: formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(2),
+                                padding: const EdgeInsets.all(2),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
@@ -106,45 +106,47 @@ class EditProfile extends StatelessWidget {
                                 child: CircleAvatar(
                                   radius: 73,
                                   backgroundColor: Colors.grey,
-                                  backgroundImage: _image != null
-                                      ? FileImage(_image)
-                                      : _photoURL != null
-                                      ? NetworkImage(_photoURL) as ImageProvider
+                                  backgroundImage: image != null
+                                      ? FileImage(image)
+                                      // ignore: unnecessary_null_comparison
+                                      : photoURL != null
+                                      ? NetworkImage(photoURL) as ImageProvider
                                       : null,
-                                  child: _image == null && _photoURL == null
-                                      ? Icon(Icons.person, size: 80, color: Colors.white)
+                                  // ignore: unnecessary_null_comparison
+                                  child: image == null && photoURL == null
+                                      ? const Icon(Icons.person, size: 80, color: Colors.white)
                                       : null,
                                 ),
                               ),
                               ElevatedButton(
                                 onPressed: () => _pickImage(context),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: ColorPalette.main_green,
+                                  backgroundColor: ColorPalette.mainGreen,
                                 ),
-                                child: Text("Change Picture", style: TextStyle(color: Colors.white)),
+                                child: const Text("Change Picture", style: TextStyle(color: Colors.white)),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               CustomFormField(
                                 label: "Name",
                                 fieldName: "Name",
-                                controller: _nameController,
+                                controller: nameController,
                               ),
                               const SizedBox(height: 20),
                               CustomFormField(
                                 label: "No. HP",
                                 fieldName: "No. HP",
-                                controller: _phoneController,
+                                controller: phoneController,
                                 isPhone: true,
                               ),
                               const SizedBox(height: 20),
                               CustomFormField(
                                 label: "Alamat",
                                 fieldName: "Alamat",
-                                controller: _alamatController,
+                                controller: alamatController,
                                 isMultiLine: true,
                               ),
                               const SizedBox(height: 20),
-                              Text(
+                              const Text(
                                 "Hubungi Admin Untuk Mengubah E-Mail",
                                 style: TextStyle(
                                   color: Colors.red,
@@ -160,14 +162,14 @@ class EditProfile extends StatelessWidget {
                     CustomButton(
                       text: "Simpan",
                       onPressed: () {
-                        if (_formKey.currentState?.validate() ?? false) {
+                        if (formKey.currentState?.validate() ?? false) {
                           final updatedUser = user.copyWith(
-                            name: _nameController.text,
-                            email: _emailController.text,
-                            phone: _phoneController.text,
-                            alamat: _alamatController.text,
+                            name: nameController.text,
+                            email: emailController.text,
+                            phone: phoneController.text,
+                            alamat: alamatController.text,
                           );
-                          context.read<UserBloc>().add(UpdateUser(updatedUser, imageFile: _image));
+                          context.read<UserBloc>().add(UpdateUser(updatedUser, imageFile: image));
                         }
                       },
                     ),
@@ -177,7 +179,7 @@ class EditProfile extends StatelessWidget {
               } else if (state is UserError) {
                 return Center(child: Text('Error: ${state.message}'));
               } else {
-                return Center(child: Text('Unknown state'));
+                return const Center(child: Text('Unknown state'));
               }
             },
           ),

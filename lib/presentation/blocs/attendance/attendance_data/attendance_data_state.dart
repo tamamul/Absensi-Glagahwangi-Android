@@ -12,7 +12,7 @@ class AttendanceDataInitial extends AttendanceDataState {}
 class AttendanceDataLoading extends AttendanceDataState {}
 
 class AttendanceDataLoaded extends AttendanceDataState {
-  final Map<String, dynamic> attendanceData;
+  final AttendanceEntity attendanceData;
 
   const AttendanceDataLoaded(this.attendanceData);
 
@@ -21,7 +21,7 @@ class AttendanceDataLoaded extends AttendanceDataState {
 }
 
 class AttendanceListFetched extends AttendanceDataState {
-  final List<Map<String, dynamic>> attendanceList;
+  final List<AttendanceEntity> attendanceList;
 
   const AttendanceListFetched(this.attendanceList);
 

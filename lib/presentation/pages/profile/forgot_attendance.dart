@@ -112,23 +112,23 @@ class _ForgotAttendanceState extends State<ForgotAttendance> {
                       labelText: "Deskripsi",
                       labelStyle: const TextStyle(
                         fontFamily: "Manrope",
-                        color: ColorPalette.form_text,
+                        color: ColorPalette.formText,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: ColorPalette.main_text, width: 2),
+                        borderSide: const BorderSide(
+                            color: ColorPalette.mainText, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: ColorPalette.stroke_menu, width: 2),
+                        borderSide: const BorderSide(
+                            color: ColorPalette.strokeMenu, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: ColorPalette.stroke_menu, width: 2),
+                        borderSide: const BorderSide(
+                            color: ColorPalette.strokeMenu, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -141,19 +141,19 @@ class _ForgotAttendanceState extends State<ForgotAttendance> {
                     width: double.infinity,
                     height: 150,
                     decoration: BoxDecoration(
-                      border: Border.all(color: ColorPalette.stroke_menu),
+                      border: Border.all(color: ColorPalette.strokeMenu),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: _selectedFile == null
-                        ? Center(
+                        ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.attach_file, size: 50, color: ColorPalette.main_text),
+                        children: [
+                          Icon(Icons.attach_file, size: 50, color: ColorPalette.mainText),
                           Text(
                             "Upload File",
                             style: TextStyle(
-                              color: ColorPalette.main_text,
+                              color: ColorPalette.mainText,
                               fontFamily: "Manrope",
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -166,7 +166,7 @@ class _ForgotAttendanceState extends State<ForgotAttendance> {
                       child: Text(
                         _selectedFile!.path.split('/').last,
                         style: const TextStyle(
-                          color: ColorPalette.main_text,
+                          color: ColorPalette.mainText,
                           fontFamily: "Manrope",
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -203,7 +203,7 @@ class _ForgotAttendanceState extends State<ForgotAttendance> {
                           } else {
                             context.read<AttendanceBloc>().add(
                               ForgetAttendance(
-                                authUser.id!,
+                                authUser.id,
                                 selectedDate,
                                 _selectedFile!.path,
                                 _descriptionController.text,

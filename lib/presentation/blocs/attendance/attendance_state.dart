@@ -31,9 +31,30 @@ class AttendanceStatusChecked extends AttendanceState {
   final String permissionStatus;
   final String dinasStatus;
   final bool isAlfa;
+  final bool isHoliday;
 
-  const AttendanceStatusChecked(this.checkedIn, this.checkedOut, this.hasPermission, this.hasDinas, this.hasOvertime, this.dinasStatus, this.permissionStatus, this.isAlfa);
+  const AttendanceStatusChecked(
+      this.checkedIn,
+      this.checkedOut,
+      this.hasPermission,
+      this.hasDinas,
+      this.hasOvertime,
+      this.dinasStatus,
+      this.permissionStatus,
+      this.isAlfa,
+      this.isHoliday,
+      );
 
   @override
-  List<Object> get props => [checkedIn, checkedOut, hasPermission, hasDinas, hasOvertime, dinasStatus, permissionStatus, isAlfa];
+  List<Object> get props => [
+    checkedIn,
+    checkedOut,
+    hasPermission,
+    hasDinas,
+    hasOvertime,
+    dinasStatus,
+    permissionStatus,
+    isAlfa,
+    isHoliday,
+  ];
 }

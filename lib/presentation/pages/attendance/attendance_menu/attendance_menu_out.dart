@@ -4,16 +4,18 @@ import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import '../../../../data/repository/attendance_repository.dart';
+import '../../../../data/repository/dinas_repository.dart';
 import '../../../../data/repository/map_repository.dart';
+import '../../../../data/repository/overtime_repository.dart';
+import '../../../../data/repository/permission_repository.dart';
 import '../../../../utils/color_palette.dart';
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../blocs/maps/maps_bloc.dart';
 import '../../../blocs/attendance/attendance_bloc.dart';
 
 class AttendanceMenuOut extends StatefulWidget {
-  const AttendanceMenuOut({Key? key}) : super(key: key);
+  const AttendanceMenuOut({super.key});
 
   @override
   _AttendanceMenuOutState createState() => _AttendanceMenuOutState();
@@ -37,6 +39,9 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
   Widget build(BuildContext context) {
     final authUser = context.select((AuthBloc bloc) => bloc.state.user);
     final attendanceRepository = AttendanceRepository();
+    final dinasRepository = DinasRepository();
+    final permissionRepository = PermissionsRepository();
+    final overtimeRepository = OvertimeRepository();
 
     return MultiBlocProvider(
       providers: [
@@ -44,7 +49,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
           create: (context) => MapsBloc(MapRepository())..add(GetCurrentLocationEvent()),
         ),
         BlocProvider(
-          create: (context) => AttendanceBloc(attendanceRepository),
+          create: (context) => AttendanceBloc(attendanceRepository: attendanceRepository, dinasRepository: dinasRepository, permissionsRepository: permissionRepository, overtimeRepository: overtimeRepository),
         ),
       ],
       child: Scaffold(
@@ -108,7 +113,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                     width: double.infinity,
                     height: 100,
                     decoration: BoxDecoration(
-                      border: Border.all(color: ColorPalette.stroke_menu),
+                      border: Border.all(color: ColorPalette.strokeMenu),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Padding(
@@ -120,7 +125,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                           maxLines: 5,
                           textAlign: TextAlign.start,
                           style: const TextStyle(
-                            color: ColorPalette.main_text,
+                            color: ColorPalette.mainText,
                             fontFamily: "Manrope",
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
@@ -138,7 +143,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                   width: double.infinity,
                   height: 450,
                   decoration: BoxDecoration(
-                    border: Border.all(color: ColorPalette.stroke_menu),
+                    border: Border.all(color: ColorPalette.strokeMenu),
                     borderRadius: BorderRadius.circular(10),
                     image: _image != null
                         ? DecorationImage(
@@ -148,15 +153,15 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                         : null,
                   ),
                   child: _image == null
-                      ? Center(
+                      ? const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.camera_alt, size: 50, color: ColorPalette.main_text),
+                      children: [
+                        Icon(Icons.camera_alt, size: 50, color: ColorPalette.mainText),
                         Text(
                           "Ambil Foto",
                           style: TextStyle(
-                            color: ColorPalette.main_text,
+                            color: ColorPalette.mainText,
                             fontFamily: "Manrope",
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
@@ -169,11 +174,11 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                 ),
               ),
               if (_image != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
                   child: Text(
                     "Klik gambar untuk mengambil ulang foto",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.black,
                       fontFamily: "Manrope",
                       fontSize: 16,
@@ -188,7 +193,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Attendance recorded successfully!')),
                     );
-                    Navigator.pop(context); // Navigate back to the previous page
+                    Navigator.pop(context);
                   } else if (state is AttendanceFailure) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Error: ${state.error}')),
@@ -204,7 +209,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                         ? () {
 
                       context.read<AttendanceBloc>().add(RecordAttendanceOut(
-                        authUser.id!,
+                        authUser.id,
                         DateTime.now(),
                         locationText,
                         _image!.path,
@@ -215,7 +220,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
                         const SnackBar(content: Text('Please take a photo and wait for the location to load before submitting.')),
                       );
                     },
-                    buttonColor: isButtonDisabled ? Colors.grey : ColorPalette.main_green,
+                    buttonColor: isButtonDisabled ? Colors.grey : ColorPalette.mainGreen,
                   );
                 },
               ),

@@ -1,47 +1,49 @@
 import 'package:equatable/equatable.dart';
 
-class User extends Equatable {
-  final String? id;
-  final String? name;
-  final String? email;
-  final String? phone;
-  final String? role;
-  final String? picture;
-  final String? alamat;
-  final String? password;
+class UserEntity extends Equatable {
+  final String id;
+  final String name;
+  final String email;
+  final String phone;
+  final String role;
+  final String picture;
+  final String alamat;
 
-  const User(
-      {required this.id,
-      this.email,
-      this.name,
-      this.phone,
-      this.role,
-      this.alamat,
-      this.password,
-      this.picture});
+  const UserEntity({
+    required this.id,
+    this.email = '',
+    this.name = '',
+    this.phone = '',
+    this.role = '',
+    this.picture = '',
+    this.alamat = '',
+  });
 
-  static const empty = User(id: '');
+  static const empty = UserEntity(id: '');
 
-  bool get isEmpty => this == User.empty;
+  bool get isEmpty => this == UserEntity.empty;
 
-  bool get isNotEmpty => this != User.empty;
+  bool get isNotEmpty => this != UserEntity.empty;
 
   @override
-  List<Object?> get props => [id, email, name, phone, role, picture, alamat, password];
+  List<Object?> get props => [id, email, name, phone, role, picture, alamat];
 
-  copyWith(
-      {required String displayName,
-      required String email,
-      required String phone}) {
-    return User(
-      id: this.id,
-      name: displayName,
-      email: email,
-      phone: phone,
-      role: this.role,
-      picture: this.picture,
-      alamat: this.alamat,
-      password: this.password,
+  UserEntity copyWith({
+    String? name,
+    String? email,
+    String? phone,
+    String? role,
+    String? picture,
+    String? alamat,
+  }) {
+    return UserEntity(
+      id: id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      role: role ?? this.role,
+      picture: picture ?? this.picture,
+      alamat: alamat ?? this.alamat,
     );
   }
 }

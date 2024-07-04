@@ -1,17 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart'; // Add this import
-import 'dart:io'; // Add this import for File
+import 'package:path_provider/path_provider.dart';
 
 import '../../../data/repository/attendance_repository.dart';
+import '../../../domain/entity/attendance.dart';
 import '../../../utils/color_palette.dart';
 import '../../blocs/attendance/attendance_data/attendance_data_bloc.dart';
 
 class AttendanceRecap extends StatelessWidget {
   final String uid;
 
-  const AttendanceRecap({Key? key, required this.uid}) : super(key: key);
+  const AttendanceRecap({super.key, required this.uid});
 
   @override
   Widget build(BuildContext context) {
@@ -47,19 +46,19 @@ class AttendanceRecap extends StatelessWidget {
                 try {
                   final directory = await getExternalStorageDirectory();
                   if (directory != null) {
-                    final downloadPath =
-                    '/storage/emulated/0/Download';
+                    const downloadPath =
+                        '/storage/emulated/0/Download';
                     await context
                         .read<AttendanceRepository>()
                         .exportAttendanceToExcel(uid, downloadPath);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                           content:
                           Text('CSV exported successfully to $downloadPath')),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                           content: Text('Unable to access storage directory')),
                     );
                   }
@@ -122,13 +121,13 @@ class AttendanceRecap extends StatelessWidget {
     );
   }
 
-  Widget _buildAttendanceCard(Map<String, dynamic> attendanceData) {
+  Widget _buildAttendanceCard(AttendanceEntity attendanceData) {
     return Container(
       width: double.infinity,
       height: 100,
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        border: Border.all(color: ColorPalette.stroke_menu),
+        border: Border.all(color: ColorPalette.strokeMenu),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -138,7 +137,7 @@ class AttendanceRecap extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildDateCircle(attendanceData['date']),
+                _buildDateCircle(attendanceData.date),
                 const SizedBox(width: 13),
                 const VerticalDivider(
                   indent: 10,
@@ -150,20 +149,20 @@ class AttendanceRecap extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: attendanceData.containsKey('in') &&
-                attendanceData.containsKey('out')
+            child: attendanceData.inData.isNotEmpty &&
+                attendanceData.outData.isNotEmpty
                 ? Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildInInfo(attendanceData['in']),
+                _buildInInfo(attendanceData.inData),
                 const VerticalDivider(
                   indent: 10,
                   endIndent: 10,
                   color: Colors.black,
                   thickness: 0.2,
                 ),
-                _buildOutInfo(attendanceData['out']),
+                _buildOutInfo(attendanceData.outData),
               ],
             )
                 : Row(
@@ -175,64 +174,6 @@ class AttendanceRecap extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  String _getMonthName(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    return months[month - 1];
-  }
-
-  Widget _buildDateCircle(String date) {
-    final parts = date.split('-');
-    final day = parts[2];
-    final month = _getMonthName(int.parse(parts[1]));
-
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: ColorPalette.circle_menu,
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              day,
-              style: const TextStyle(
-                color: Colors.black,
-                fontFamily: "Manrope",
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              month,
-              style: const TextStyle(
-                color: Colors.black,
-                fontFamily: "Manrope",
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -251,19 +192,19 @@ class AttendanceRecap extends StatelessWidget {
                 height: 30,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: ColorPalette.circle_menu,
+                  color: ColorPalette.circleMenu,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.input_rounded,
                   size: 20,
-                  color: ColorPalette.main_green,
+                  color: ColorPalette.mainGreen,
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
+              const Text(
                 "Masuk",
                 style: TextStyle(
-                  color: ColorPalette.secondary_text,
+                  color: ColorPalette.secondaryText,
                   fontFamily: "Manrope",
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -310,19 +251,19 @@ class AttendanceRecap extends StatelessWidget {
                 height: 30,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: ColorPalette.circle_menu,
+                  color: ColorPalette.circleMenu,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.output_rounded,
                   size: 20,
-                  color: ColorPalette.main_green,
+                  color: ColorPalette.mainGreen,
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
+              const Text(
                 "Keluar",
                 style: TextStyle(
-                  color: ColorPalette.secondary_text,
+                  color: ColorPalette.secondaryText,
                   fontFamily: "Manrope",
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -355,7 +296,7 @@ class AttendanceRecap extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusInfo(Map<String, dynamic> attendanceData) {
+  Widget _buildStatusInfo(AttendanceEntity attendanceData) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 1),
       child: Column(
@@ -363,18 +304,16 @@ class AttendanceRecap extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            textAlign: TextAlign.start,
-            attendanceData['description'] ?? '',
-            style: TextStyle(
-              color: ColorPalette.secondary_text,
+            attendanceData.description,
+            style: const TextStyle(
+              color: ColorPalette.secondaryText,
               fontFamily: "Manrope",
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
           ),
           Text(
-            textAlign: TextAlign.start,
-            attendanceData['attendanceStatus'] ?? '',
+            attendanceData.attendanceStatus,
             style: const TextStyle(
               color: Colors.black,
               fontFamily: "Manrope",
@@ -383,6 +322,64 @@ class AttendanceRecap extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    return months[month - 1];
+  }
+
+  Widget _buildDateCircle(String date) {
+    final parts = date.split('-');
+    final day = parts[2];
+    final month = _getMonthName(int.parse(parts[1]));
+
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: ColorPalette.circleMenu,
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              day,
+              style: const TextStyle(
+                color: Colors.black,
+                fontFamily: "Manrope",
+                fontSize: 19,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              month,
+              style: const TextStyle(
+                color: Colors.black,
+                fontFamily: "Manrope",
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

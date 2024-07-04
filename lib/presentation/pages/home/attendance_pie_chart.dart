@@ -1,12 +1,15 @@
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart'; // Add this import for date formatting
+import 'package:intl/intl.dart';
+
+import '../../../domain/entity/attendance.dart';
+
 
 class AttendancePieChart extends StatefulWidget {
-  final List<Map<String, dynamic>> attendanceList;
+  final List<AttendanceEntity> attendanceList;
 
-  AttendancePieChart(this.attendanceList);
+  const AttendancePieChart(this.attendanceList, {super.key});
 
   @override
   _AttendancePieChartState createState() => _AttendancePieChartState();
@@ -43,14 +46,14 @@ class _AttendancePieChartState extends State<AttendancePieChart> {
     };
 
     for (var attendance in widget.attendanceList) {
-      DateTime date = DateTime.parse(attendance['date']);
+      DateTime date = DateTime.parse(attendance.date);
       String month = DateFormat.MMMM().format(date);
       String year = DateFormat.y().format(date);
 
       if (month == _selectedMonth && year == _selectedYear) {
-        if (_statusCount.containsKey(attendance['attendanceStatus'])) {
-          _statusCount[attendance['attendanceStatus']] =
-              _statusCount[attendance['attendanceStatus']]! + 1;
+        if (_statusCount.containsKey(attendance.attendanceStatus)) {
+          _statusCount[attendance.attendanceStatus] =
+              _statusCount[attendance.attendanceStatus]! + 1;
         }
       }
     }
@@ -71,16 +74,16 @@ class _AttendancePieChartState extends State<AttendancePieChart> {
         children: [
           Row(
             children: [
-              Text(
+              const Text(
                 "Bagan Kehadiran",
                 style: TextStyle(
                   fontFamily: "Manrope",
-                  color: ColorPalette.main_text,
+                  color: ColorPalette.mainText,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              SizedBox(width: 20),
+              const SizedBox(width: 20),
               DropdownButton<String>(
                 value: _selectedMonth,
                 underline: Container(
@@ -106,7 +109,7 @@ class _AttendancePieChartState extends State<AttendancePieChart> {
                   );
                 }).toList(),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               DropdownButton<String>(
                 value: _selectedYear,
                 underline: Container(
@@ -196,7 +199,7 @@ class _AttendancePieChartState extends State<AttendancePieChart> {
         value: value,
         title: '${percentage.toStringAsFixed(1)}%',
         radius: radius,
-        titleStyle: TextStyle(
+        titleStyle: const TextStyle(
           fontFamily: "Manrope",
           color: Colors.black,
           fontSize: 14,
@@ -238,14 +241,14 @@ class Indicator extends StatelessWidget {
   final Color textColor;
 
   const Indicator({
-    Key? key,
+    super.key,
     required this.color,
     required this.text,
     required this.count,
     required this.isSquare,
     this.size = 42,
     this.textColor = const Color(0xff505050),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

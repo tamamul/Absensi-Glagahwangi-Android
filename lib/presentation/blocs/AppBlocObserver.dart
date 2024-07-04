@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 
 class AppBlocObserver extends BlocObserver {
   const AppBlocObserver();
@@ -6,7 +7,9 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onEvent(Bloc<dynamic, dynamic> bloc, Object? event) {
     super.onEvent(bloc, event);
-    print(event);
+    if (kDebugMode) {
+      print(event);
+    }
   }
 
   @override

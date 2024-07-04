@@ -1,8 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
-import '../../../data/model/user_model.dart';
+
 import '../../../data/repository/user_repository.dart';
+import '../../../domain/entity/user.dart';
+
 part 'user_event.dart';
 part 'user_state.dart';
 
@@ -19,10 +21,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   void _onFetchUser(FetchUser event, Emitter<UserState> emit) async {
     emit(UserLoading());
     try {
-      final UserModel user = await userRepository.getUser(event.userId);
+      final UserEntity user = await userRepository.getUser(event.userId);
       emit(UserLoaded(user));
     } catch (e) {
-      emit(UserError('Failed to fetch user'));
+      emit(const UserError('Failed to fetch user'));
     }
   }
 
@@ -32,7 +34,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       await userRepository.updateUser(event.user, event.imageFile);
       emit(UserUpdateSuccess());
     } catch (e) {
-      emit(UserUpdateFailure('Failed to update user'));
+      emit(const UserUpdateFailure('Failed to update user'));
     }
   }
 

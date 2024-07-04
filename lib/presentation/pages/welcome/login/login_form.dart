@@ -2,11 +2,10 @@ import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:absensi_glagahwangi/presentation/widget/form_field.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../cubits/login/login_cubit.dart';
-import '../forget_password.dart';
+import '../reset_password.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -23,7 +22,7 @@ class LoginForm extends StatelessWidget {
             behavior: SnackBarBehavior.floating,
             elevation: 4,
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
             content: const Text(
               'Akun Tidak Ditemukan!',
               style: TextStyle(
@@ -44,7 +43,7 @@ class LoginForm extends StatelessWidget {
             behavior: SnackBarBehavior.floating,
             elevation: 4,
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
             content: const Text(
               'Tidak Ada Koneksi Internet!',
               style: TextStyle(
@@ -96,7 +95,7 @@ class LoginForm extends StatelessWidget {
               const Text(
                 "Lupa Password?",
                 style: TextStyle(
-                  color: ColorPalette.main_text,
+                  color: ColorPalette.mainText,
                   fontFamily: "Manrope",
                   fontSize: 18,
                 ),
@@ -106,14 +105,14 @@ class LoginForm extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ForgetPassword(),
+                      builder: (context) => const ResetPassword(),
                     ),
                   );
                 },
                 child: const Text(
                   " Reset",
                   style: TextStyle(
-                    color: ColorPalette.main_green,
+                    color: ColorPalette.mainGreen,
                     fontFamily: "Manrope",
                     fontSize: 18,
                     fontWeight: FontWeight.w700,

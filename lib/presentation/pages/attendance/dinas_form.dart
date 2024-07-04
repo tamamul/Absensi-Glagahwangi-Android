@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../utils/color_palette.dart';
@@ -8,7 +9,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../widget/custom_button.dart';
 
 class DinasForm extends StatefulWidget {
-  const DinasForm({Key? key}) : super(key: key);
+  const DinasForm({super.key});
 
   @override
   _DinasFormState createState() => _DinasFormState();
@@ -88,15 +89,15 @@ class _DinasFormState extends State<DinasForm> {
                     validator: (value) => value == null || value.isEmpty ? "Deskripsi harus diisi" : null,
                     decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorPalette.main_text, width: 2),
+                        borderSide: const BorderSide(color: ColorPalette.mainText, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorPalette.stroke_menu, width: 2),
+                        borderSide: const BorderSide(color: ColorPalette.strokeMenu, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorPalette.stroke_menu, width: 2),
+                        borderSide: const BorderSide(color: ColorPalette.strokeMenu, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -115,25 +116,27 @@ class _DinasFormState extends State<DinasForm> {
                 GestureDetector(
                   onTap: () {
                     _pickFile();
-                    print('Icon tapped');
+                    if (kDebugMode) {
+                      print('Icon tapped');
+                    }
                   },
                   child: Container(
                     width: double.infinity,
                     height: 150,
                     decoration: BoxDecoration(
-                      border: Border.all(color: ColorPalette.stroke_menu),
+                      border: Border.all(color: ColorPalette.strokeMenu),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: _selectedFile == null
-                        ? Center(
+                        ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.attach_file, size: 50, color: ColorPalette.main_text),
+                        children: [
+                          Icon(Icons.attach_file, size: 50, color: ColorPalette.mainText),
                           Text(
                             "Upload File",
                             style: TextStyle(
-                              color: ColorPalette.main_text,
+                              color: ColorPalette.mainText,
                               fontFamily: "Manrope",
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -146,7 +149,7 @@ class _DinasFormState extends State<DinasForm> {
                       child: Text(
                         _selectedFile!.path.split('/').last,
                         style: const TextStyle(
-                          color: ColorPalette.main_text,
+                          color: ColorPalette.mainText,
                           fontFamily: "Manrope",
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -171,7 +174,7 @@ class _DinasFormState extends State<DinasForm> {
                   },
                   builder: (context, state) {
                     return state is AttendanceLoading
-                        ? Center(child: CircularProgressIndicator())
+                        ? const Center(child: CircularProgressIndicator())
                         : CustomButton(
                       text: "Kirim",
                       onPressed: () {
@@ -179,7 +182,7 @@ class _DinasFormState extends State<DinasForm> {
                           final attendanceBloc = context.read<AttendanceBloc>();
                           attendanceBloc.add(
                             SubmitDinasForm(
-                              authUser.id!,
+                              authUser.id,
                               DateTime.now(),
                               _description,
                               _selectedFile!.path,

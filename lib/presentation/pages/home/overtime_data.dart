@@ -9,10 +9,10 @@ class OvertimeDataWidget extends StatefulWidget {
   final String id;
 
   const OvertimeDataWidget({
-    Key? key,
+    super.key,
     required this.overtimeDataBloc,
     required this.id,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => OvertimeDataWidgetState();
@@ -53,16 +53,16 @@ class OvertimeDataWidgetState extends State<OvertimeDataWidget> {
             children: [
               Row(
                 children: [
-                  Text(
+                  const Text(
                     "Jam Lembur Bulan",
                     style: TextStyle(
                       fontFamily: "Manrope",
-                      color: ColorPalette.main_text,
+                      color: ColorPalette.mainText,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   DropdownButton<String>(
                     value: _selectedMonth,
                     underline: Container(
@@ -88,7 +88,7 @@ class OvertimeDataWidgetState extends State<OvertimeDataWidget> {
                       );
                     }).toList(),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   DropdownButton<String>(
                     value: _selectedYear,
                     underline: Container(
@@ -122,12 +122,12 @@ class OvertimeDataWidgetState extends State<OvertimeDataWidget> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _buildOvertimeCircle(duration, isLoading),
-                  SizedBox(width: 10),
-                  Text(
+                  const SizedBox(width: 10),
+                  const Text(
                     "Jam Lembur Bulan Ini",
                     style: TextStyle(
                       fontFamily: "Manrope",
-                      color: ColorPalette.main_text,
+                      color: ColorPalette.mainText,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -145,13 +145,13 @@ class OvertimeDataWidgetState extends State<OvertimeDataWidget> {
     return Container(
       width: 50,
       height: 50,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
         color: ColorPalette.absen,
       ),
       child: Center(
         child: isLoading
-            ? CircularProgressIndicator(
+            ? const CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
         )
             : Text(
@@ -170,7 +170,7 @@ class OvertimeDataWidgetState extends State<OvertimeDataWidget> {
   void _fetchOvertimeDuration() {
     final int monthIndex = _months.indexOf(_selectedMonth) + 1;
     final formattedMonth = monthIndex.toString().padLeft(2, '0');
-    final formattedDate = '${_selectedYear}-$formattedMonth';
+    final formattedDate = '$_selectedYear-$formattedMonth';
     widget.overtimeDataBloc.add(FetchOvertimeDurationForMonth(widget.id, formattedDate));
   }
 }

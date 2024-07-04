@@ -2,16 +2,16 @@ import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../data/repository/event_repository.dart';
-import '../../blocs/holiday/event_bloc.dart';
+import '../../../data/repository/holiday_repository.dart';
+import '../../blocs/holiday//holiday_bloc.dart';
 
-class Holiday extends StatelessWidget {
-  const Holiday({Key? key}) : super(key: key);
+class HolidayMenu extends StatelessWidget {
+  const HolidayMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => EventBloc(eventRepository: EventRepository())..add(FetchEvents()),
+      create: (context) => HolidayBloc(holidayRepository: HolidayRepository())..add(FetchHoliday()),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -37,26 +37,27 @@ class Holiday extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: SingleChildScrollView(
-            child: BlocBuilder<EventBloc, EventState>(
+            child: BlocBuilder<HolidayBloc, HolidayState>(
               builder: (context, state) {
-                if (state is EventLoading) {
+                if (state is HolidayLoading) {
+                  // ignore: prefer_const_constructors
                   return Center(child: CircularProgressIndicator());
-                } else if (state is EventLoaded) {
+                } else if (state is HolidayLoaded) {
                   return Column(
-                    children: state.events.map((event) {
+                    children: state.holidays.map((event) {
                       return Container(
                         width: double.infinity,
                         height: 70,
                         margin: const EdgeInsets.only(bottom: 10),
                         decoration: BoxDecoration(
-                          border: Border.all(color: ColorPalette.stroke_menu),
+                          border: Border.all(color: ColorPalette.strokeMenu),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(
                                 event.name,
                                 style: const TextStyle(
@@ -67,7 +68,7 @@ class Holiday extends StatelessWidget {
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(
                                 event.date.toString(), // Format the date as needed
                                 style: const TextStyle(
@@ -83,10 +84,10 @@ class Holiday extends StatelessWidget {
                       );
                     }).toList(),
                   );
-                } else if (state is EventError) {
+                } else if (state is HolidayError) {
                   return Center(child: Text('Error: ${state.message}'));
                 } else {
-                  return Center(child: Text('No events found'));
+                  return const Center(child: Text('No events found'));
                 }
               },
             ),

@@ -1,14 +1,14 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../../utils/color_palette.dart';
 import '../../blocs/attendance/attendance_bloc.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../widget/custom_button.dart';
 
 class PermissionForm extends StatefulWidget {
-  const PermissionForm({Key? key}) : super(key: key);
+  const PermissionForm({super.key});
 
   @override
   _PermissionFormState createState() => _PermissionFormState();
@@ -18,18 +18,19 @@ class _PermissionFormState extends State<PermissionForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _selectedType;
   String _description = "";
-  File? _imageFile;
+  File? _selectedFile;
 
-  final ImagePicker _picker = ImagePicker();
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+    );
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-
-    setState(() {
-      if (pickedFile != null) {
-        _imageFile = File(pickedFile.path);
-      }
-    });
+    if (result != null) {
+      setState(() {
+        _selectedFile = File(result.files.single.path!);
+      });
+    }
   }
 
   @override
@@ -77,15 +78,15 @@ class _PermissionFormState extends State<PermissionForm> {
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorPalette.main_text, width: 2),
+                      borderSide: const BorderSide(color: ColorPalette.mainText, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorPalette.stroke_menu, width: 2),
+                      borderSide: const BorderSide(color: ColorPalette.strokeMenu, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorPalette.stroke_menu, width: 2),
+                      borderSide: const BorderSide(color: ColorPalette.strokeMenu, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -121,15 +122,15 @@ class _PermissionFormState extends State<PermissionForm> {
                     validator: (value) => value == null || value.isEmpty ? "Deskripsi harus diisi" : null,
                     decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorPalette.main_text, width: 2),
+                        borderSide: const BorderSide(color: ColorPalette.mainText, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorPalette.stroke_menu, width: 2),
+                        borderSide: const BorderSide(color: ColorPalette.strokeMenu, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: ColorPalette.stroke_menu, width: 2),
+                        borderSide: const BorderSide(color: ColorPalette.strokeMenu, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -137,7 +138,7 @@ class _PermissionFormState extends State<PermissionForm> {
                 ),
                 const SizedBox(height: 30),
                 const Text(
-                  "Foto Bukti",
+                  "File Bukti",
                   style: TextStyle(
                     color: Colors.black,
                     fontFamily: "Manrope",
@@ -146,24 +147,24 @@ class _PermissionFormState extends State<PermissionForm> {
                 ),
                 const SizedBox(height: 3),
                 GestureDetector(
-                  onTap: _pickImage,
+                  onTap: _pickFile,
                   child: Container(
                     width: double.infinity,
-                    height: 350,
+                    height: 150,
                     decoration: BoxDecoration(
-                      border: Border.all(color: ColorPalette.stroke_menu),
+                      border: Border.all(color: ColorPalette.strokeMenu),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: _imageFile == null
-                        ? Center(
+                    child: _selectedFile == null
+                        ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.camera_alt, size: 50, color: ColorPalette.main_text),
+                        children: [
+                          Icon(Icons.attach_file, size: 50, color: ColorPalette.mainText),
                           Text(
-                            "Ambil Foto",
+                            "Upload File",
                             style: TextStyle(
-                              color: ColorPalette.main_text,
+                              color: ColorPalette.mainText,
                               fontFamily: "Manrope",
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -172,9 +173,16 @@ class _PermissionFormState extends State<PermissionForm> {
                         ],
                       ),
                     )
-                        : Image.file(
-                      _imageFile!,
-                      fit: BoxFit.cover,
+                        : Center(
+                      child: Text(
+                        _selectedFile!.path.split('/').last,
+                        style: const TextStyle(
+                          color: ColorPalette.mainText,
+                          fontFamily: "Manrope",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -194,24 +202,24 @@ class _PermissionFormState extends State<PermissionForm> {
                   },
                   builder: (context, state) {
                     return state is AttendanceLoading
-                        ? Center(child: CircularProgressIndicator())
+                        ? const Center(child: CircularProgressIndicator())
                         : CustomButton(
                       text: "Kirim",
                       onPressed: () {
-                        if (_formKey.currentState!.validate() && _imageFile != null) {
+                        if (_formKey.currentState!.validate() && _selectedFile != null) {
                           final attendanceBloc = context.read<AttendanceBloc>();
                           attendanceBloc.add(
                             SubmitPermissionForm(
-                              authUser.id!, // Replace with actual UID
+                              authUser.id,
                               DateTime.now(),
                               _selectedType!,
                               _description,
-                              _imageFile!.path,
+                              _selectedFile!.path,
                             ),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Pastikan semua field sudah diisi dan foto sudah diambil')),
+                            const SnackBar(content: Text('Pastikan semua field sudah diisi dan file sudah diupload')),
                           );
                         }
                       },
@@ -229,9 +237,9 @@ class _PermissionFormState extends State<PermissionForm> {
 
 List<DropdownMenuItem<String>> get dropdownItems {
   return [
-    DropdownMenuItem(child: Text("Sakit"), value: "Sakit"),
-    DropdownMenuItem(child: Text("Izin Pribadi"), value: "Izin"),
-    DropdownMenuItem(child: Text("Cuti"), value: "Cuti"),
-    DropdownMenuItem(child: Text("Lainnya"), value: "Lainnya"),
+    const DropdownMenuItem(value: "Sakit", child: Text("Sakit")),
+    const DropdownMenuItem(value: "Izin", child: Text("Izin Pribadi")),
+    const DropdownMenuItem(value: "Cuti", child: Text("Cuti")),
+    const DropdownMenuItem(value: "Lainnya", child: Text("Lainnya")),
   ];
 }

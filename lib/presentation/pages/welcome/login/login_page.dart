@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
                 const Text(
                   'Selamat Datang',
                   style: TextStyle(
-                    color: ColorPalette.main_text,
+                    color: ColorPalette.mainText,
                     fontFamily: "Manrope",
                     fontSize: 34,
                     fontWeight: FontWeight.w900,
@@ -37,7 +37,7 @@ class LoginPage extends StatelessWidget {
                 const Text(
                   "Silahkan Masuk dengan Username dan Password yang Telah Diberikan",
                   style: TextStyle(
-                    color: ColorPalette.secondary_text,
+                    color: ColorPalette.secondaryText,
                     fontFamily: "Manrope",
                     fontSize: 18,
                     fontWeight: FontWeight.w700,

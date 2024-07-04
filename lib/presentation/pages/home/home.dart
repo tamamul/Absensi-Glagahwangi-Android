@@ -1,3 +1,4 @@
+import 'package:absensi_glagahwangi/data/repository/overtime_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -7,8 +8,8 @@ import '../../blocs/attendance/attendance_data/attendance_data_bloc.dart';
 import '../../blocs/attendance/overtime/overtime_data_bloc.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/user/user_bloc.dart';
-import 'attendance_chart.dart';
-import 'attendance_bar_chart.dart';
+import 'attendance_line_chart.dart';
+import 'attendance_pie_chart.dart';
 import 'overtime_data.dart';
 
 class Home extends StatelessWidget {
@@ -22,15 +23,15 @@ class Home extends StatelessWidget {
       providers: [
         BlocProvider<UserBloc>(
           create: (context) => UserBloc(userRepository: UserRepository())
-            ..add(FetchUser(authUser.id!)),
+            ..add(FetchUser(authUser.id)),
         ),
         BlocProvider<AttendanceDataBloc>(
           create: (context) => AttendanceDataBloc(AttendanceRepository())
-            ..add(FetchAttendanceList(authUser.id!)),
+            ..add(FetchAttendanceList(authUser.id)),
         ),
         BlocProvider<OvertimeDataBloc>(
-          create: (context) => OvertimeDataBloc(AttendanceRepository())
-            ..add(FetchOvertimeDurationForMonth(authUser.id!, DateFormat('yyyy-MM').format(DateTime.now()))),
+          create: (context) => OvertimeDataBloc(OvertimeRepository())
+            ..add(FetchOvertimeDurationForMonth(authUser.id, DateFormat('yyyy-MM').format(DateTime.now()))),
         ),
       ],
       child: Scaffold(
@@ -105,7 +106,7 @@ class Home extends StatelessWidget {
                                         builder: (context, state) {
                                           return OvertimeDataWidget(
                                             overtimeDataBloc: context.read<OvertimeDataBloc>(),
-                                            id: authUser.id!,
+                                            id: authUser.id,
                                           );
                                         },
                                       ),

@@ -12,7 +12,7 @@ class AuthLogoutRequested extends AuthEvent {
 }
 
 class AuthUserChanged extends AuthEvent {
-  final User user;
+  final UserEntity user;
 
   const AuthUserChanged(this.user);
 

@@ -58,6 +58,7 @@ class MapsBloc extends Bloc<MapsEvent, MapsState> {
             ));
           }
         }
+        // ignore: prefer_const_constructors
         await Future.delayed(Duration(seconds: 5));
       }
     } catch (e) {

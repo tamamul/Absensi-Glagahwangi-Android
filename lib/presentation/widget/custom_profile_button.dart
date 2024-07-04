@@ -9,31 +9,31 @@ class CustomProfileButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomProfileButton({
-    Key? key,
+    super.key,
     required this.text,
     this.prefixIcon,
     this.suffixIcon,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
       style: ButtonStyle(
-        padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+        padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
       ),
       child: Row(
         children: [
           if (prefixIcon != null)
-            Icon(prefixIcon, color: ColorPalette.main_text),
+            Icon(prefixIcon, color: ColorPalette.mainText),
           if (prefixIcon != null) const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
                 fontFamily: "Manrope",
-                color: ColorPalette.main_text,
+                color: ColorPalette.mainText,
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
               ),
@@ -44,7 +44,7 @@ class CustomProfileButton extends StatelessWidget {
           if (suffixIcon != null)
             Icon(
               suffixIcon,
-              color: ColorPalette.main_text,
+              color: ColorPalette.mainText,
             ),
         ],
       ),
@@ -57,10 +57,10 @@ class CustomLogoutButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomLogoutButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class CustomLogoutButton extends StatelessWidget {
         _showConfirmationDialog(context);
       },
       style: ButtonStyle(
-        padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+        padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
       ),
       child: Row(
         children: [
@@ -98,21 +98,21 @@ class CustomLogoutButton extends StatelessWidget {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Log Out"),
-          content: Text("Apakah Anda Yakin Untuk Keluar?"),
+          title: const Text("Confirm Log Out"),
+          content: const Text("Apakah Anda Yakin Untuk Keluar?"),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
                 onPressed();
                 Navigator.of(context).pop();
               },
-              child: Text("Log Out"),
+              child: const Text("Log Out"),
             ),
           ],
         );

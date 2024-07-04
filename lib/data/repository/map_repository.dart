@@ -1,25 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapRepository {
-  final LatLng geofenceCenter = LatLng(-7.6481967, 110.6633733);
+  LatLng geofenceCenter = const LatLng(-7.6481967, 110.6633733);
   double geofenceRadius = 10.0;
 
   Future<void> initializeGeofenceRadius() async {
     try {
       DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
-          .collection('geofence_radius')
+          .collection('map')
           .doc('radius_document')
           .get();
 
       if (snapshot.exists && snapshot.data() != null) {
         geofenceRadius = snapshot.data()!['radius']?.toDouble() ?? geofenceRadius;
+        geofenceCenter = LatLng(
+          snapshot.data()!['lat']?.toDouble() ?? geofenceCenter.latitude,
+          snapshot.data()!['long']?.toDouble() ?? geofenceCenter.longitude,
+        );
       }
     } catch (e) {
-      print("Error fetching geofence radius: $e");
+      if (kDebugMode) {
+        print('Error initializing geofence radius: $e');
+      }
     }
   }
 
@@ -77,7 +84,7 @@ class MapRepository {
 
   Circle getGeofenceCircle() {
     return Circle(
-      circleId: CircleId('geofence'),
+      circleId: const CircleId('geofence'),
       center: geofenceCenter,
       radius: geofenceRadius,
       fillColor: Colors.blue.withOpacity(0.1),

@@ -87,4 +87,3 @@ class ForgetAttendance extends AttendanceEvent {
   @override
   List<Object> get props => [uid, date, filePath, description];
 }
-

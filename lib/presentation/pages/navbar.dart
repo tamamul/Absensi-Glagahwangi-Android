@@ -17,13 +17,11 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   int index = 0;
   final page = [
-    Home(),
-    Attendance(),
-    Profile(),
-    // Add more pages as needed
+    const Home(),
+    const Attendance(),
+    const Profile(),
   ];
 
-  List<Widget>? _widgetOptions;
 
   @override
   void initState() {
@@ -34,7 +32,6 @@ class _NavBarState extends State<NavBar> {
   }
 
   initPages() async {
-    _widgetOptions = [const Attendance()];
 
     setState(() {});
   }
@@ -49,17 +46,17 @@ class _NavBarState extends State<NavBar> {
           const Divider(height: 2, color: ColorPalette.divider),
           NavigationBarTheme(
             data: NavigationBarThemeData(
-              iconTheme: MaterialStateProperty.all(
+              iconTheme: WidgetStateProperty.all(
                 const IconThemeData(
-                  color: ColorPalette.navbar_off,
+                  color: ColorPalette.navbarOff,
                   size: 24,
                 ),
               ),
               indicatorColor: Colors.transparent,
-              labelTextStyle: MaterialStateProperty.all(
+              labelTextStyle: WidgetStateProperty.all(
                 const TextStyle(
                   fontFamily: 'Manrope',
-                  color: ColorPalette.main_green,
+                  color: ColorPalette.mainGreen,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -78,19 +75,19 @@ class _NavBarState extends State<NavBar> {
                 NavigationDestination(
                   icon: Icon(Icons.dashboard_outlined),
                   selectedIcon:
-                      Icon(Icons.dashboard, color: ColorPalette.main_green),
+                      Icon(Icons.dashboard, color: ColorPalette.mainGreen),
                   label: 'Beranda',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.fingerprint_outlined),
                   selectedIcon:
-                      Icon(Icons.fingerprint, color: ColorPalette.main_green),
+                      Icon(Icons.fingerprint, color: ColorPalette.mainGreen),
                   label: 'Absensi',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),
                   selectedIcon:
-                      Icon(Icons.person, color: ColorPalette.main_green),
+                      Icon(Icons.person, color: ColorPalette.mainGreen),
                   label: 'Profil',
                 ),
                 // NavigationDestination(

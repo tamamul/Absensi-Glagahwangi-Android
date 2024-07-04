@@ -7,8 +7,8 @@ import '../../blocs/user/user_bloc.dart';
 import '../../widget/custom_button.dart';
 import '../../widget/form_field.dart';
 
-class ForgetPassword extends StatelessWidget {
-  const ForgetPassword({Key? key}) : super(key: key);
+class ResetPassword extends StatelessWidget {
+  const ResetPassword({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class ForgetPassword extends StatelessWidget {
                 const Text(
                   "Reset Password",
                   style: TextStyle(
-                      color: ColorPalette.main_text,
+                      color: ColorPalette.mainText,
                       fontFamily: "Manrope",
                       fontSize: 36,
                       fontWeight: FontWeight.w900),
@@ -47,7 +47,7 @@ class ForgetPassword extends StatelessWidget {
                 const Text(
                   "Masukkan Email yang Sudah Ditautkan Dengan Akun",
                   style: TextStyle(
-                      color: ColorPalette.secondary_text,
+                      color: ColorPalette.secondaryText,
                       fontFamily: "Manrope",
                       fontSize: 18,
                       fontWeight: FontWeight.w700),
@@ -80,8 +80,8 @@ class ForgetPassword extends StatelessWidget {
                                     vertical: 10, horizontal: 20),
                                 behavior: SnackBarBehavior.floating,
                                 elevation: 4,
-                                backgroundColor: ColorPalette.main_green,
-                                duration: Duration(seconds: 3),
+                                backgroundColor: ColorPalette.mainGreen,
+                                duration: const Duration(seconds: 3),
                                 content: const Text(
                                   'Permintaan Reset Password Telah Dikirim!',
                                   style: TextStyle(
@@ -102,7 +102,7 @@ class ForgetPassword extends StatelessWidget {
                                 behavior: SnackBarBehavior.floating,
                                 elevation: 4,
                                 backgroundColor: Colors.red,
-                                duration: Duration(seconds: 3),
+                                duration: const Duration(seconds: 3),
                                 content: Text(
                                   state.error,
                                   style: const TextStyle(

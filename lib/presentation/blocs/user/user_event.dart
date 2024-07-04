@@ -17,7 +17,7 @@ class FetchUser extends UserEvent {
 }
 
 class UpdateUser extends UserEvent {
-  final UserModel user;
+  final UserEntity user;
   final File? imageFile;
 
   const UpdateUser(this.user, {this.imageFile});

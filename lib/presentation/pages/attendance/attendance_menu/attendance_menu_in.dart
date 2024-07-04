@@ -4,16 +4,18 @@ import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import '../../../../data/repository/attendance_repository.dart';
+import '../../../../data/repository/dinas_repository.dart';
 import '../../../../data/repository/map_repository.dart';
+import '../../../../data/repository/overtime_repository.dart';
+import '../../../../data/repository/permission_repository.dart';
 import '../../../../utils/color_palette.dart';
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../blocs/maps/maps_bloc.dart';
 import '../../../blocs/attendance/attendance_bloc.dart';
 
 class AttendanceMenuIn extends StatefulWidget {
-  const AttendanceMenuIn({Key? key}) : super(key: key);
+  const AttendanceMenuIn({super.key});
 
   @override
   _AttendanceMenuInState createState() => _AttendanceMenuInState();
@@ -37,7 +39,10 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
   @override
   Widget build(BuildContext context) {
     final authUser = context.select((AuthBloc bloc) => bloc.state.user);
-    final attendanceRepository = AttendanceRepository(); // Ensure this is properly instantiated
+    final attendanceRepository = AttendanceRepository();
+    final dinasRepository = DinasRepository();
+    final permissionRepository = PermissionsRepository();
+    final overtimeRepository = OvertimeRepository();
 
     return MultiBlocProvider(
       providers: [
@@ -45,7 +50,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
           create: (context) => MapsBloc(MapRepository())..add(GetCurrentLocationEvent()),
         ),
         BlocProvider(
-          create: (context) => AttendanceBloc(attendanceRepository),
+          create: (context) => AttendanceBloc(attendanceRepository: attendanceRepository, dinasRepository: dinasRepository, permissionsRepository: permissionRepository, overtimeRepository: overtimeRepository),
         ),
       ],
       child: Scaffold(
@@ -114,7 +119,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                         width: double.infinity,
                         height: 100,
                         decoration: BoxDecoration(
-                          border: Border.all(color: ColorPalette.stroke_menu),
+                          border: Border.all(color: ColorPalette.strokeMenu),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Padding(
@@ -126,7 +131,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                               maxLines: 5,
                               textAlign: TextAlign.start,
                               style: const TextStyle(
-                                color: ColorPalette.main_text,
+                                color: ColorPalette.mainText,
                                 fontFamily: "Manrope",
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
@@ -136,9 +141,9 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                         ),
                       ),
                       if (isOutsideGeofence)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: const Text(
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child: Text(
                             "Anda berada di luar lokasi absen.",
                             style: TextStyle(
                               color: Colors.red,
@@ -159,7 +164,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                   width: double.infinity,
                   height: 450,
                   decoration: BoxDecoration(
-                    border: Border.all(color: ColorPalette.stroke_menu),
+                    border: Border.all(color: ColorPalette.strokeMenu),
                     borderRadius: BorderRadius.circular(10),
                     image: _image != null
                         ? DecorationImage(
@@ -169,15 +174,15 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                         : null,
                   ),
                   child: _image == null
-                      ? Center(
+                      ? const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.camera_alt, size: 50, color: ColorPalette.main_text),
+                      children: [
+                        Icon(Icons.camera_alt, size: 50, color: ColorPalette.mainText),
                         Text(
                           "Ambil Foto",
                           style: TextStyle(
-                            color: ColorPalette.main_text,
+                            color: ColorPalette.mainText,
                             fontFamily: "Manrope",
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
@@ -190,9 +195,9 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                 ),
               ),
               if (_image != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: const Text(
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Text(
                     "Klik gambar untuk mengambil ulang foto",
                     style: TextStyle(
                       color: Colors.black,
@@ -209,7 +214,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Attendance recorded successfully!')),
                     );
-                    Navigator.pop(context); // Navigate back to the previous page
+                    Navigator.pop(context);
                   } else if (state is AttendanceFailure) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Error: ${state.error}')),
@@ -224,7 +229,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                     onPressed: !isButtonDisabled
                         ? () {
                       context.read<AttendanceBloc>().add(RecordAttendanceIn(
-                        authUser.id!,
+                        authUser.id,
                         DateTime.now(),
                         locationText,
                         _image!.path,
@@ -235,7 +240,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
                         const SnackBar(content: Text('Please take a photo and wait for the location to load before submitting.')),
                       );
                     },
-                    buttonColor: isButtonDisabled ? Colors.grey : ColorPalette.main_green,
+                    buttonColor: isButtonDisabled ? Colors.grey : ColorPalette.mainGreen,
                   );
                 },
               ),

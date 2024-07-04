@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import '../../domain/entity/user.dart';
 
 class UserModel extends Equatable {
   final String id;
@@ -9,24 +10,22 @@ class UserModel extends Equatable {
   final String role;
   final String alamat;
   final String picture;
-  final String password;
 
   const UserModel({
     required this.id,
     required this.name,
     required this.email,
     required this.phone,
-    required this.alamat,
     required this.role,
+    required this.alamat,
     required this.picture,
-    this.password = '',
   });
 
   @override
   List<Object> get props => [id, name, email, phone, role, picture, alamat];
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<String, dynamic>;
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return UserModel(
       id: doc.id,
       name: data['name'] ?? '',
@@ -49,15 +48,34 @@ class UserModel extends Equatable {
     };
   }
 
-  copyWith({required String name, required String email, required String phone, required String alamat}) {
-    return UserModel(
-      id: this.id,
+  UserEntity toEntity() {
+    return UserEntity(
+      id: id,
       name: name,
       email: email,
       phone: phone,
-      alamat: this.alamat,
-      role: this.role,
-      picture: this.picture,
+      role: role,
+      picture: picture,
+      alamat: alamat,
+    );
+  }
+
+  UserModel copyWith({
+    String? name,
+    String? email,
+    String? phone,
+    String? role,
+    String? picture,
+    String? alamat,
+  }) {
+    return UserModel(
+      id: id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      role: role ?? this.role,
+      picture: picture ?? this.picture,
+      alamat: alamat ?? this.alamat,
     );
   }
 }

@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,7 +21,9 @@ class Maps extends StatelessWidget {
           children: [
             BlocListener<MapsBloc, MapsState>(
               listener: (context, state) {
-                print("current state: $state");
+                if (kDebugMode) {
+                  print("current state: $state");
+                }
                 if (state is MapsOutsideGeofence) {
                   final snackBar = SnackBar(
                     shape: RoundedRectangleBorder(
@@ -30,7 +33,7 @@ class Maps extends StatelessWidget {
                     behavior: SnackBarBehavior.floating,
                     elevation: 4,
                     backgroundColor: Colors.red,
-                    duration: Duration(seconds: 4),
+                    duration: const Duration(seconds: 4),
                     content: const Text(
                       'Diluar Lokasi Absen!',
                       style: TextStyle(
@@ -49,7 +52,7 @@ class Maps extends StatelessWidget {
               child: BlocBuilder<MapsBloc, MapsState>(
                 builder: (context, state) {
                   if (state is MapsLoadInProgress) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (state is MapsOutsideGeofence) {
                     return builtInMaps(
                       context,
@@ -65,7 +68,7 @@ class Maps extends StatelessWidget {
                       geofenceCircle: state.geofenceCircle,
                     );
                   } else {
-                    return Center(child: Text('Please enable location services'));
+                    return const Center(child: Text('Please enable location services'));
                   }
                 },
               ),
@@ -75,7 +78,7 @@ class Maps extends StatelessWidget {
               left: 16.0,
               child: FloatingActionButton(
                 onPressed: () => context.read<MapsBloc>().add(GetCurrentLocationEvent()),
-                child: Icon(Icons.my_location),
+                child: const Icon(Icons.my_location),
               ),
             ),
           ],

@@ -18,7 +18,7 @@ class CustomFormField extends StatefulWidget {
   final String? errorMessage;
 
   const CustomFormField({
-    Key? key,
+    super.key,
     required this.fieldName,
     required this.label,
     this.controller,
@@ -33,7 +33,7 @@ class CustomFormField extends StatefulWidget {
     this.onTap,
     this.isMultiLine = false,
     this.errorMessage,
-  }) : super(key: key);
+  });
 
   @override
   _CustomFormFieldState createState() => _CustomFormFieldState();
@@ -149,7 +149,7 @@ InputDecoration inputDecoration({
     InputDecoration(
       enabledBorder: enabledBorder ??
           OutlineInputBorder(
-            borderSide: const BorderSide(color: ColorPalette.main_text, width: 1.0),
+            borderSide: const BorderSide(color: ColorPalette.mainText, width: 1.0),
             borderRadius: BorderRadius.circular(8.0),
           ),
       border: border ?? const OutlineInputBorder(borderSide: BorderSide()),
@@ -164,7 +164,7 @@ InputDecoration inputDecoration({
       labelText: labelText,
       labelStyle: const TextStyle(
         fontFamily: "Manrope",
-        color: ColorPalette.form_text,
+        color: ColorPalette.formText,
         fontSize: 18,
         fontWeight: FontWeight.w700,
       ),

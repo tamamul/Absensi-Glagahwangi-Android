@@ -3,16 +3,16 @@ import 'package:absensi_glagahwangi/presentation/blocs/auth/auth_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/user/user_bloc.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/attendance_recap.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/dinas_form.dart';
-import 'package:absensi_glagahwangi/presentation/pages/attendance/event_menu.dart';
+import 'package:absensi_glagahwangi/presentation/pages/attendance/holiday_menu.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/permission_form.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../data/repository/event_repository.dart';
+import '../../../data/repository/holiday_repository.dart';
 import '../../blocs/attendance/attendance_data/attendance_data_bloc.dart';
-import '../../blocs/holiday/event_bloc.dart';
+import '../../blocs/holiday/holiday_bloc.dart';
 import 'attendance_menu/attendance_menu_in.dart';
 import 'attendance_menu/attendance_menu_out.dart';
 import '../../blocs/attendance/attendance_bloc.dart';
@@ -30,6 +30,7 @@ class _AttendanceState extends State<Attendance> {
   bool _hasPermission = false;
   bool _hasDinas = false;
   bool _isAlfa = false;
+  bool _isHoliday = false;
 
   @override
   void initState() {
@@ -41,10 +42,10 @@ class _AttendanceState extends State<Attendance> {
     final authUser = context.read<AuthBloc>().state.user;
     context
         .read<AttendanceBloc>()
-        .add(CheckAttendanceStatus(authUser.id!, DateTime.now()));
+        .add(CheckAttendanceStatus(authUser.id, DateTime.now()));
     context
         .read<AttendanceDataBloc>()
-        .add(FetchAttendanceForDate(authUser.id!, DateTime.now()));
+        .add(FetchAttendanceForDate(authUser.id, DateTime.now()));
   }
 
   @override
@@ -52,13 +53,13 @@ class _AttendanceState extends State<Attendance> {
     final authUser = context.select((AuthBloc bloc) => bloc.state.user);
     return MultiBlocProvider(
         providers: [
-          BlocProvider<EventBloc>(
-            create: (context) => EventBloc(eventRepository: EventRepository())
-              ..add(FetchEvents()),
+          BlocProvider<HolidayBloc>(
+            create: (context) => HolidayBloc(holidayRepository: HolidayRepository())
+              ..add(FetchHoliday()),
           ),
           BlocProvider<UserBloc>(
             create: (context) => UserBloc(userRepository: UserRepository())
-              ..add(FetchUser(authUser.id!)),
+              ..add(FetchUser(authUser.id)),
           ),
         ],
         child: Scaffold(
@@ -127,9 +128,9 @@ class _AttendanceState extends State<Attendance> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         "Kehadiran Hari Ini",
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.black,
                           fontFamily: "Manrope",
                           fontSize: 20,
@@ -143,14 +144,14 @@ class _AttendanceState extends State<Attendance> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  AttendanceRecap(uid: authUser.id!),
+                                  AttendanceRecap(uid: authUser.id),
                             ),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           "Rekap Absen",
-                          style: const TextStyle(
-                            color: ColorPalette.main_yellow,
+                          style: TextStyle(
+                            color: ColorPalette.mainYellow,
                             fontFamily: "Manrope",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -166,62 +167,58 @@ class _AttendanceState extends State<Attendance> {
                         return const Center(child: CircularProgressIndicator());
                       } else if (state is AttendanceDataLoaded) {
                         final attendanceData = state.attendanceData;
-                        final inData = attendanceData['in'];
-                        final outData = attendanceData['out'];
-                        final attendanceStatus =
-                            attendanceData['attendanceStatus'];
+                        final inData = attendanceData.inData;
+                        final outData = attendanceData.outData;
+                        final attendanceStatus = attendanceData.attendanceStatus;
                         return Row(
                           children: [
                             _buildAttendanceCard(
                               "Masuk",
                               Icons.input_rounded,
-                              attendanceStatus != null &&
-                                      attendanceStatus != 'absen' &&
-                                      attendanceStatus != 'lembur'
+                              attendanceStatus.isNotEmpty &&
+                                  attendanceStatus != 'absen' &&
+                                  attendanceStatus != 'lembur'
                                   ? attendanceStatus
-                                  : inData != null
-                                      ? inData['time'] ?? "Belum"
-                                      : "Belum",
-                              attendanceStatus != null &&
-                                      attendanceStatus != 'absen' &&
-                                      attendanceStatus != 'lembur'
+                                  : inData.isNotEmpty
+                                  ? inData['time'] ?? "Belum"
+                                  : "Belum",
+                              attendanceStatus.isNotEmpty &&
+                                  attendanceStatus != 'absen' &&
+                                  attendanceStatus != 'lembur'
                                   ? "---"
-                                  : inData != null
-                                      ? inData['status'] ?? "---"
-                                      : "---",
+                                  : inData.isNotEmpty
+                                  ? inData['status'] ?? "---"
+                                  : "---",
                             ),
                             const SizedBox(width: 10),
                             _buildAttendanceCard(
                               "Keluar",
                               Icons.output_rounded,
-                              attendanceStatus != null &&
-                                      attendanceStatus != 'absen' &&
-                                      attendanceStatus != 'lembur'
+                              attendanceStatus.isNotEmpty &&
+                                  attendanceStatus != 'absen' &&
+                                  attendanceStatus != 'lembur'
                                   ? attendanceStatus
-                                  : outData != null
-                                      ? outData['time'] ?? "Belum"
-                                      : "Belum",
-                              attendanceStatus != null &&
-                                      attendanceStatus != 'absen' &&
-                                      attendanceStatus != 'lembur'
+                                  : outData.isNotEmpty
+                                  ? outData['time'] ?? "Belum"
+                                  : "Belum",
+                              attendanceStatus.isNotEmpty &&
+                                  attendanceStatus != 'absen' &&
+                                  attendanceStatus != 'lembur'
                                   ? "---"
-                                  : outData != null
-                                      ? outData['status'] != 'Pulang'
-                                          ? outData['status']
-                                          : 'Pulang'
-                                      : "---",
+                                  : outData.isNotEmpty
+                                  ? outData['status'] != 'Pulang'
+                                  ? outData['status']
+                                  : 'Pulang'
+                                  : "---",
                             ),
                           ],
                         );
-                      } else if (state is AttendanceDataEmpty ||
-                          state is AttendanceDataFailure) {
+                      } else if (state is AttendanceDataEmpty || state is AttendanceDataFailure) {
                         return Row(
                           children: [
-                            _buildAttendanceCard(
-                                "Masuk", Icons.input_rounded, "Belum", "---"),
+                            _buildAttendanceCard("Masuk", Icons.input_rounded, "Belum", "---"),
                             const SizedBox(width: 10),
-                            _buildAttendanceCard(
-                                "Keluar", Icons.output_rounded, "Belum", "---"),
+                            _buildAttendanceCard("Keluar", Icons.output_rounded, "Belum", "---"),
                           ],
                         );
                       } else {
@@ -232,16 +229,16 @@ class _AttendanceState extends State<Attendance> {
                   const Spacer(),
                   BlocBuilder<AttendanceBloc, AttendanceState>(
                     builder: (context, state) {
-                      bool _hasOvertime = false;
-                      bool _checkedIn = false;
-                      bool _checkedOut = false;
+                      bool hasOvertime = false;
+                      bool checkedIn = false;
+                      bool checkedOut = false;
 
                       if (state is AttendanceLoading) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (state is AttendanceStatusChecked) {
-                        _hasOvertime = state.hasOvertime;
-                        _checkedIn = state.checkedIn;
-                        _checkedOut = state.checkedOut;
+                        hasOvertime = state.hasOvertime;
+                        checkedIn = state.checkedIn;
+                        checkedOut = state.checkedOut;
                         _hasDinas = state.hasDinas;
                         _hasPermission = state.hasPermission;
                       }
@@ -250,15 +247,15 @@ class _AttendanceState extends State<Attendance> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.more_time_rounded,
-                            color: ColorPalette.main_green,
+                            color: ColorPalette.mainGreen,
                             size: 25,
                           ),
                           const SizedBox(width: 2),
-                          Text(
+                          const Text(
                             "Aktifkan Status Lembur",
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.black,
                               fontFamily: "Manrope",
                               fontSize: 18,
@@ -266,28 +263,28 @@ class _AttendanceState extends State<Attendance> {
                             ),
                           ),
                           const SizedBox(width: 2),
-                          Tooltip(
+                          const Tooltip(
                             message:
                                 "Lembur hanya bisa diaktifkan setelah jam 11:45 dan sudah presensi masuk, Jangan lupa untuk klik presensi keluar setelah selesai lembur.",
                             child: Icon(
                               Icons.info_outline_rounded,
-                              color: ColorPalette.main_text,
+                              color: ColorPalette.mainText,
                               size: 20,
                             ),
                           ),
                           const Spacer(),
                           Switch(
                             activeColor: Colors.white,
-                            activeTrackColor: ColorPalette.main_green,
+                            activeTrackColor: ColorPalette.mainGreen,
                             inactiveThumbColor: Colors.blueGrey.shade600,
                             inactiveTrackColor: Colors.grey.shade400,
                             splashRadius: 50.0,
-                            value: _hasOvertime,
+                            value: hasOvertime,
                             onChanged: (bool value) {
                               if (!value) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text(
+                                  const SnackBar(
+                                    content: Text(
                                       "Tunggu Hari Kerja Berikutnya Untuk Mengaktifkan Lembur Kembali",
                                     ),
                                     backgroundColor: Colors.red,
@@ -302,13 +299,13 @@ class _AttendanceState extends State<Attendance> {
 
                               if (hour < 11 ||
                                   (hour == 11 && minute <= 45) ||
-                                  !_checkedIn ||
-                                  _checkedOut ||
+                                  !checkedIn ||
+                                  checkedOut ||
                                   _hasDinas ||
                                   _hasPermission) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text(
+                                  const SnackBar(
+                                    content: Text(
                                       "Lembur hanya bisa diaktifkan setelah jam 11:45 dan sudah presensi masuk, belum presensi keluar dan tidak izin maupun dinas",
                                     ),
                                     backgroundColor: Colors.red,
@@ -350,7 +347,7 @@ class _AttendanceState extends State<Attendance> {
                                           context
                                               .read<AttendanceBloc>()
                                               .add(RecordOvertime(
-                                                authUser.id!,
+                                                authUser.id,
                                                 DateTime.now(),
                                               ));
                                         },
@@ -369,9 +366,9 @@ class _AttendanceState extends State<Attendance> {
                   const Spacer(),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         "Hari Libur",
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.black,
                           fontFamily: "Manrope",
                           fontSize: 20,
@@ -384,14 +381,14 @@ class _AttendanceState extends State<Attendance> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Holiday(),
+                              builder: (context) => const HolidayMenu(),
                             ),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           "Lihat Semua",
-                          style: const TextStyle(
-                            color: ColorPalette.main_yellow,
+                          style: TextStyle(
+                            color: ColorPalette.mainYellow,
                             fontFamily: "Manrope",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -401,58 +398,112 @@ class _AttendanceState extends State<Attendance> {
                     ],
                   ),
                   const SizedBox(height: 5),
-                  BlocBuilder<EventBloc, EventState>(
+                  BlocBuilder<HolidayBloc, HolidayState>(
                     builder: (context, state) {
-                      if (state is EventLoading) {
+                      if (state is HolidayLoading) {
                         return const Center(child: CircularProgressIndicator());
-                      } else if (state is EventLoaded) {
-                        return Column(
-                          children: state.events.take(2).map((event) {
-                            return Container(
-                              width: double.infinity,
-                              height: 60,
-                              margin: const EdgeInsets.only(bottom: 10),
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: ColorPalette.stroke_menu),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Text(
-                                      event.name,
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: "Manrope",
-                                        fontSize: 20,
+                      } else if (state is HolidayLoaded) {
+                        if (state.holidays.isEmpty) {
+                          return const Center(child: Text('Tidak Ada Hari Libur'));
+                        } else if (state.holidays.length == 1) {
+                          final event = state.holidays.first;
+                          return Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                height: 60,
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: ColorPalette.strokeMenu),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(
+                                        event.name,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: "Manrope",
+                                          fontSize: 20,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Text(
-                                      event.date.toString(),
-                                      // Format the date as needed
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: "Manrope",
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(
+                                        event.date.toString(),
+                                        // Format the date as needed
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: "Manrope",
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            );
-                          }).toList(),
-                        );
-                      } else if (state is EventError) {
+                              Container(
+                                alignment: Alignment.center,
+                                height: 60,
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: ColorPalette.strokeMenu),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Text('Tidak Ada Hari Libur'),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Column(
+                            children: state.holidays.take(2).map((event) {
+                              return Container(
+                                width: double.infinity,
+                                height: 60,
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: ColorPalette.strokeMenu),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(
+                                        event.name,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: "Manrope",
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(
+                                        event.date.toString(),
+                                        // Format the date as needed
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: "Manrope",
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        }
+                      } else if (state is HolidayError) {
                         return Center(child: Text('Error: ${state.message}'));
                       } else {
                         return const Center(child: Text('No events found'));
@@ -485,8 +536,8 @@ class _AttendanceState extends State<Attendance> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                        color: ColorPalette.circle_menu),
-                                    color: ColorPalette.main_green,
+                                        color: ColorPalette.circleMenu),
+                                    color: ColorPalette.mainGreen,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14.0),
@@ -517,7 +568,7 @@ class _AttendanceState extends State<Attendance> {
                                           text: "Sudah Pulang",
                                           onPressed: () {},
                                           textSize: 18,
-                                          textColor: ColorPalette.navbar_off,
+                                          textColor: ColorPalette.navbarOff,
                                           buttonColor: Colors.white,
                                         ),
                                       ],
@@ -532,8 +583,8 @@ class _AttendanceState extends State<Attendance> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: ColorPalette.circle_menu),
-                                      color: ColorPalette.main_green,
+                                          color: ColorPalette.circleMenu),
+                                      color: ColorPalette.mainGreen,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(14.0),
@@ -564,7 +615,7 @@ class _AttendanceState extends State<Attendance> {
                                             text: "Aktif",
                                             onPressed: () {},
                                             textSize: 18,
-                                            textColor: ColorPalette.main_green,
+                                            textColor: ColorPalette.mainGreen,
                                             buttonColor: Colors.white,
                                           ),
                                         ],
@@ -577,8 +628,8 @@ class _AttendanceState extends State<Attendance> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: ColorPalette.circle_menu),
-                                      color: ColorPalette.main_green,
+                                          color: ColorPalette.circleMenu),
+                                      color: ColorPalette.mainGreen,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(14.0),
@@ -610,7 +661,7 @@ class _AttendanceState extends State<Attendance> {
                                             onPressed: () {},
                                             textSize: 18,
                                             textColor: Colors.black,
-                                            buttonColor: ColorPalette.main_yellow,
+                                            buttonColor: ColorPalette.mainYellow,
                                           ),
                                         ],
                                       ),
@@ -622,8 +673,8 @@ class _AttendanceState extends State<Attendance> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: ColorPalette.circle_menu),
-                                      color: ColorPalette.main_green,
+                                          color: ColorPalette.circleMenu),
+                                      color: ColorPalette.mainGreen,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(14.0),
@@ -677,8 +728,8 @@ class _AttendanceState extends State<Attendance> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border:
-                                    Border.all(color: ColorPalette.circle_menu),
-                                    color: ColorPalette.main_green,
+                                    Border.all(color: ColorPalette.circleMenu),
+                                    color: ColorPalette.mainGreen,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14.0),
@@ -708,7 +759,7 @@ class _AttendanceState extends State<Attendance> {
                                           text: "Sedang Izin",
                                           onPressed: () {},
                                           textSize: 18,
-                                          textColor: ColorPalette.main_green,
+                                          textColor: ColorPalette.mainGreen,
                                           buttonColor: Colors.white,
                                         ),
                                       ],
@@ -721,8 +772,8 @@ class _AttendanceState extends State<Attendance> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border:
-                                    Border.all(color: ColorPalette.circle_menu),
-                                    color: ColorPalette.main_green,
+                                    Border.all(color: ColorPalette.circleMenu),
+                                    color: ColorPalette.mainGreen,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14.0),
@@ -760,7 +811,7 @@ class _AttendanceState extends State<Attendance> {
                                             );
                                           },
                                           textSize: 18,
-                                          textColor: ColorPalette.main_green,
+                                          textColor: ColorPalette.mainGreen,
                                           buttonColor: Colors.white,
                                         ),
                                       ],
@@ -788,8 +839,8 @@ class _AttendanceState extends State<Attendance> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                        color: ColorPalette.circle_menu),
-                                    color: ColorPalette.navbar_off,
+                                        color: ColorPalette.circleMenu),
+                                    color: ColorPalette.navbarOff,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14.0),
@@ -820,7 +871,7 @@ class _AttendanceState extends State<Attendance> {
                                           text: "Sudah Pulang",
                                           onPressed: () {},
                                           textSize: 18,
-                                          textColor: ColorPalette.navbar_off,
+                                          textColor: ColorPalette.navbarOff,
                                           buttonColor: Colors.white,
                                         ),
                                       ],
@@ -834,8 +885,8 @@ class _AttendanceState extends State<Attendance> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                        color: ColorPalette.circle_menu),
-                                    color: ColorPalette.navbar_off,
+                                        color: ColorPalette.circleMenu),
+                                    color: ColorPalette.navbarOff,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14.0),
@@ -866,7 +917,7 @@ class _AttendanceState extends State<Attendance> {
                                           text: "Sedang Dinas",
                                           onPressed: () {},
                                           textSize: 18,
-                                          textColor: ColorPalette.navbar_off,
+                                          textColor: ColorPalette.navbarOff,
                                           buttonColor: Colors.white,
                                         ),
                                       ],
@@ -880,8 +931,8 @@ class _AttendanceState extends State<Attendance> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: ColorPalette.circle_menu),
-                                      color: ColorPalette.navbar_off,
+                                          color: ColorPalette.circleMenu),
+                                      color: ColorPalette.navbarOff,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(14.0),
@@ -912,7 +963,7 @@ class _AttendanceState extends State<Attendance> {
                                             text: "Sedang Izin",
                                             onPressed: () {},
                                             textSize: 18,
-                                            textColor: ColorPalette.main_green,
+                                            textColor: ColorPalette.mainGreen,
                                             buttonColor: Colors.white,
                                           ),
                                         ],
@@ -926,8 +977,8 @@ class _AttendanceState extends State<Attendance> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: ColorPalette.circle_menu),
-                                      color: ColorPalette.navbar_off,
+                                          color: ColorPalette.circleMenu),
+                                      color: ColorPalette.navbarOff,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(14.0),
@@ -960,7 +1011,7 @@ class _AttendanceState extends State<Attendance> {
                                             textSize: 18,
                                             textColor: Colors.black,
                                             buttonColor:
-                                                ColorPalette.main_yellow,
+                                                ColorPalette.mainYellow,
                                           ),
                                         ],
                                       ),
@@ -972,8 +1023,8 @@ class _AttendanceState extends State<Attendance> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: ColorPalette.circle_menu),
-                                      color: ColorPalette.navbar_off,
+                                          color: ColorPalette.circleMenu),
+                                      color: ColorPalette.navbarOff,
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(14.0),
@@ -1018,8 +1069,8 @@ class _AttendanceState extends State<Attendance> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                        color: ColorPalette.circle_menu),
-                                    color: ColorPalette.navbar_off,
+                                        color: ColorPalette.circleMenu),
+                                    color: ColorPalette.navbarOff,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14.0),
@@ -1058,7 +1109,7 @@ class _AttendanceState extends State<Attendance> {
                                             );
                                           },
                                           textSize: 18,
-                                          textColor: ColorPalette.navbar_off,
+                                          textColor: ColorPalette.navbarOff,
                                           buttonColor: Colors.white,
                                         ),
                                       ],
@@ -1084,6 +1135,8 @@ class _AttendanceState extends State<Attendance> {
                         _hasCheckedOut = state.checkedOut;
                         _hasPermission = state.hasPermission;
                         _hasDinas = state.hasDinas;
+                        _isAlfa = state.isAlfa;
+                        _isHoliday = state.isHoliday;
 
                         if (_hasPermission &&
                             !_hasCheckedIn &&
@@ -1104,7 +1157,7 @@ class _AttendanceState extends State<Attendance> {
                               },
                               textSize: 15,
                               textColor: Colors.white,
-                              buttonColor: ColorPalette.main_yellow,
+                              buttonColor: ColorPalette.mainYellow,
                             );
                           } else if (state.permissionStatus == "approved") {
                             return CustomButton(
@@ -1134,6 +1187,14 @@ class _AttendanceState extends State<Attendance> {
                               buttonColor: Colors.red,
                             );
                           }
+                        } else if(_isHoliday){
+                          return CustomButton(
+                            text: "Hari Libur",
+                            onPressed: () {},
+                            textSize: 15,
+                            textColor: Colors.white,
+                            buttonColor: Colors.grey,
+                          );
                         } else if (_hasDinas &&
                             state.dinasStatus == "approved") {
                           return CustomButton(
@@ -1146,6 +1207,14 @@ class _AttendanceState extends State<Attendance> {
                         } else if (_hasCheckedIn && _hasCheckedOut) {
                           return CustomButton(
                             text: "Sudah absen hari ini",
+                            onPressed: () {},
+                            textSize: 15,
+                            textColor: Colors.white,
+                            buttonColor: Colors.grey,
+                          );
+                        } else if(_isAlfa){
+                          return CustomButton(
+                            text: "Anda Alfa Untuk Hari Ini",
                             onPressed: () {},
                             textSize: 15,
                             textColor: Colors.white,
@@ -1183,8 +1252,8 @@ class _AttendanceState extends State<Attendance> {
                             textColor:
                                 _hasCheckedIn ? Colors.black : Colors.white,
                             buttonColor: _hasCheckedIn
-                                ? ColorPalette.main_yellow
-                                : ColorPalette.main_green,
+                                ? ColorPalette.mainYellow
+                                : ColorPalette.mainGreen,
                           );
                         }
                       } else {
@@ -1208,7 +1277,7 @@ Widget _buildAttendanceCard(
       height: 110,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ColorPalette.circle_menu),
+        border: Border.all(color: ColorPalette.circleMenu),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14.0),
@@ -1222,15 +1291,15 @@ Widget _buildAttendanceCard(
                 height: 20,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: ColorPalette.circle_menu,
+                  color: ColorPalette.circleMenu,
                 ),
-                child: Icon(icon, size: 20, color: ColorPalette.main_green),
+                child: Icon(icon, size: 20, color: ColorPalette.mainGreen),
               ),
               const SizedBox(width: 10),
               Text(
                 title,
                 style: const TextStyle(
-                  color: ColorPalette.main_text,
+                  color: ColorPalette.mainText,
                   fontFamily: "Manrope",
                   fontSize: 18,
                 ),
@@ -1240,7 +1309,7 @@ Widget _buildAttendanceCard(
             Text(
               time,
               style: const TextStyle(
-                color: ColorPalette.main_text,
+                color: ColorPalette.mainText,
                 fontFamily: "Manrope",
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -1250,7 +1319,7 @@ Widget _buildAttendanceCard(
             Text(
               status,
               style: const TextStyle(
-                color: ColorPalette.main_text,
+                color: ColorPalette.mainText,
                 fontFamily: "Manrope",
                 fontSize: 15,
               ),

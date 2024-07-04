@@ -8,7 +8,7 @@ import '../../widget/form_field.dart';
 class ChangePassword extends StatefulWidget {
   final String email;
 
-  ChangePassword({Key? key, required this.email}) : super(key: key);
+  const ChangePassword({super.key, required this.email});
 
   @override
   _ChangePasswordState createState() => _ChangePasswordState();
@@ -125,7 +125,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                 listener: (context, state) {
                   if (state is UserUpdateSuccess) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Password changed successfully')),
+                      const SnackBar(content: Text('Password changed successfully')),
                     );
                     Navigator.pop(context);
                   } else if (state is UserUpdateFailure) {
@@ -136,7 +136,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                 },
                 builder: (context, state) {
                   if (state is UserUpdateLoading) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   }
 
                   return CustomButton(

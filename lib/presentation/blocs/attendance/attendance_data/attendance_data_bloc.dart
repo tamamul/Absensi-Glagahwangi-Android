@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import '../../../../domain/entity/attendance.dart';
 import '../../../../data/repository/attendance_repository.dart';
 
 part 'attendance_data_event.dart';
@@ -17,7 +18,7 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
   Future<void> _onFetchAttendanceForDate(FetchAttendanceForDate event, Emitter<AttendanceDataState> emit) async {
     emit(AttendanceDataLoading());
     try {
-      final attendanceData = await attendanceRepository.fetchAttendanceForDate(event.uid, event.date);
+      final attendanceData = await attendanceRepository.getAttendanceForDate(event.uid, event.date);
       emit(attendanceData != null ? AttendanceDataLoaded(attendanceData) : AttendanceDataEmpty());
     } catch (e) {
       emit(AttendanceDataFailure(e.toString()));
@@ -27,7 +28,7 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
   Future<void> _onFetchAttendanceList(FetchAttendanceList event, Emitter<AttendanceDataState> emit) async {
     emit(AttendanceDataLoading());
     try {
-      final attendanceList = await attendanceRepository.fetchAttendanceList(event.uid);
+      final attendanceList = await attendanceRepository.getAttendanceList(event.uid);
       emit(AttendanceListFetched(attendanceList));
     } catch (e) {
       emit(AttendanceDataFailure(e.toString()));
@@ -37,7 +38,7 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
   Future<void> _onFetchAttendanceForMonth(FetchAttendanceForMonth event, Emitter<AttendanceDataState> emit) async {
     emit(AttendanceDataLoading());
     try {
-      final attendanceList = await attendanceRepository.fetchAttendanceListForMonth(event.uid, event.month);
+      final attendanceList = await attendanceRepository.getAttendanceListForMonth(event.uid, event.month);
       emit(AttendanceListFetched(attendanceList));
     } catch (e) {
       emit(AttendanceDataFailure(e.toString()));

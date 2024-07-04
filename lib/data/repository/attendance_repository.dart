@@ -1,14 +1,44 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:excel/excel.dart' as exc;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart' as p;
-import 'package:flutter/cupertino.dart';
+import '../../domain/entity/attendance.dart';
+import '../model/attendance_model.dart';
+import 'package:excel/excel.dart' as exc;
+import "package:path/path.dart" as p;
+
+import '../model/forget_attendance_model.dart';
+import '../model/overtime_model.dart';
 
 class AttendanceRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
   String defaultImageUrl = 'http://picsum.photos/200/300';
+
+  Future<String> _uploadImageAndGetUrl(String uid, String imagePath, String type) async {
+    File file = File(imagePath);
+    String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+    Reference ref = _firebaseStorage.ref().child('attendance').child(uid).child(type).child(fileName);
+    UploadTask uploadTask = ref.putFile(file);
+    TaskSnapshot taskSnapshot = await uploadTask;
+    return await taskSnapshot.ref.getDownloadURL();
+  }
+
+  Future<String> _uploadFileAndGetUrl(String uid, String filePath, String type) async {
+    File file = File(filePath);
+    String fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}';
+    Reference ref = _firebaseStorage.ref().child('dinas').child(uid).child(fileName);
+    UploadTask uploadTask = ref.putFile(file);
+    TaskSnapshot taskSnapshot = await uploadTask;
+    return await taskSnapshot.ref.getDownloadURL();
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  String _formatTime(DateTime date) {
+    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}';
+  }
 
   Future<void> recordAttendanceIn(String uid, DateTime date, String location, String imagePath, [String? attendanceStatus]) async {
     String formattedDate = _formatDate(date);
@@ -26,16 +56,19 @@ class AttendanceRepository {
       'status': status,
     };
 
-    await _firestore.collection('attendance').doc(documentId).set({
-      'id': documentId,
-      'uid': uid,
-      'date': formattedDate,
-      'in': inData,
-      'attendanceStatus': attendanceStatus ?? 'absen',
-      'description': 'Melakukan Absen Normal',
-      'timestamp': FieldValue.serverTimestamp(),
-      'status': "diterima"
-    }, SetOptions(merge: true));
+    AttendanceModel attendanceModel = AttendanceModel(
+      id: documentId,
+      uid: uid,
+      date: formattedDate,
+      inData: inData,
+      outData: {},
+      attendanceStatus: attendanceStatus ?? 'absen',
+      description: 'Melakukan Absen Normal',
+      timestamp: Timestamp.now(),
+      status: "diterima",
+    );
+
+    await _firestore.collection('attendance').doc(documentId).set(attendanceModel.toMap(), SetOptions(merge: true));
   }
 
   Future<void> recordAttendanceOut(String uid, DateTime date, String location, String imagePath) async {
@@ -52,10 +85,7 @@ class AttendanceRepository {
       'out': true,
     };
 
-
-    await _firestore.collection('attendance').doc(documentId).set({
-      'out': outData,
-    }, SetOptions(merge: true));
+    await _firestore.collection('attendance').doc(documentId).set({'out': outData}, SetOptions(merge: true));
 
     DocumentSnapshot snapshot = await _firestore.collection('attendance').doc(documentId).get();
     if (snapshot.exists && snapshot.data() != null) {
@@ -65,42 +95,22 @@ class AttendanceRepository {
         int durationHours = date.difference(overtimeStart).inHours;
         int duration = durationHours.abs();
 
-        await _firestore.collection('attendance').doc(documentId).set({
-          'out': {
-            'status':"Pulang Lembur"
-          },
-        }, SetOptions(merge: true));
+        await _firestore.collection('attendance').doc(documentId).set({'out': {'status': "Pulang Lembur"}}, SetOptions(merge: true));
 
-        Map<String, dynamic> overtimeData = {
-          'id': documentId,
-          'date': formattedDate,
-          'uid': uid,
-          'status': "Lembur",
-          'finish': _formatTime(date),
-          'duration': duration,
-        };
+        OvertimeModel overtimeModel = OvertimeModel(
+          id: documentId,
+          uid: uid,
+          date: formattedDate,
+          status: "Lembur",
+          finish: _formatTime(date),
+          duration: duration,
+        );
 
-        await _firestore.collection('overtime').doc(documentId).set(overtimeData, SetOptions(merge: true));
+        await _firestore.collection('overtime').doc(documentId).set(overtimeModel.toMap(), SetOptions(merge: true));
       }
     }
   }
 
-  Future<String> _uploadImageAndGetUrl(String uid, String imagePath, String type) async {
-    File file = File(imagePath);
-    String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-    Reference ref = _firebaseStorage.ref().child('attendance').child(uid).child(type).child(fileName);
-    UploadTask uploadTask = ref.putFile(file);
-    TaskSnapshot taskSnapshot = await uploadTask;
-    return await taskSnapshot.ref.getDownloadURL();
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-
-  String _formatTime(DateTime date) {
-    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}';
-  }
 
   Future<bool> hasCheckedIn(String uid, DateTime date) async {
     String formattedDate = _formatDate(date);
@@ -124,23 +134,19 @@ class AttendanceRepository {
     return false;
   }
 
-  Future<bool> hasDinas(String uid, DateTime date) async {
-    String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-    DocumentSnapshot snapshot = await _firestore.collection('dinas').doc(documentId).get();
-    return snapshot.exists;
-  }
-
-  Future<List<Map<String, dynamic>>> fetchAttendanceList(String uid) async {
+  Future<List<AttendanceEntity>> getAttendanceList(String uid) async {
     QuerySnapshot snapshot = await _firestore.collection('attendance')
         .where('uid', isEqualTo: uid)
         .orderBy('date', descending: true)
         .get();
 
-    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    return snapshot.docs.map((doc) {
+      AttendanceModel model = AttendanceModel.fromFirestore(doc);
+      return model.toEntity();
+    }).toList();
   }
 
-  Future<List<Map<String, dynamic>>> fetchAttendanceListForMonth(String uid, String month) async {
+  Future<List<AttendanceEntity>> getAttendanceListForMonth(String uid, String month) async {
     String startDate = '$month-01';
     String endDate = '$month-31';
 
@@ -151,24 +157,28 @@ class AttendanceRepository {
         .orderBy('date', descending: true)
         .get();
 
-    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    return snapshot.docs.map((doc) {
+      AttendanceModel model = AttendanceModel.fromFirestore(doc);
+      return model.toEntity();
+    }).toList();
   }
 
-  Future<Map<String, dynamic>?> fetchAttendanceForDate(String uid, DateTime date) async {
+  Future<AttendanceEntity?> getAttendanceForDate(String uid, DateTime date) async {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
     DocumentSnapshot snapshot = await _firestore.collection('attendance').doc(documentId).get();
 
     if (snapshot.exists) {
-      return snapshot.data() as Map<String, dynamic>?;
+      AttendanceModel model = AttendanceModel.fromFirestore(snapshot);
+      return model.toEntity();
     }
     return null;
   }
 
   Future<void> exportAttendanceToExcel(String uid, String outputPath) async {
-    List<Map<String, dynamic>> attendanceList = await fetchAttendanceList(uid);
+    List<AttendanceEntity> attendanceList = await getAttendanceList(uid);
 
-    String userName = await fetchUserNameByUid(uid);
+    String userName = await getUserNameByUid(uid);
 
     var excel = exc.Excel.createExcel();
 
@@ -199,10 +209,10 @@ class AttendanceRepository {
     }
 
     for (var attendance in attendanceList) {
-      String date = attendance['date'] ?? '';
-      Map<String, dynamic> inData = attendance['in'] ?? {};
-      Map<String, dynamic> outData = attendance['out'] ?? {};
-      String attendanceStatus = attendance['attendanceStatus'] ?? 'absen';
+      String date = attendance.date;
+      Map<String, dynamic> inData = attendance.inData;
+      Map<String, dynamic> outData = attendance.outData;
+      String attendanceStatus = attendance.attendanceStatus;
 
       List<dynamic> row = [
         userName,
@@ -247,7 +257,7 @@ class AttendanceRepository {
       ..writeAsBytesSync(fileBytes!);
   }
 
-  Future<String> fetchUserNameByUid(String uid) async {
+  Future<String> getUserNameByUid(String uid) async {
     var userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
     if (userDoc.exists) {
@@ -256,88 +266,6 @@ class AttendanceRepository {
     }
 
     return 'Unknown User';
-  }
-
-  Future<void> submitPermissionForm(String uid, DateTime date, String type, String description, String imagePath) async {
-    String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-
-    String imageUrl = await _uploadImageAndGetUrl(uid, imagePath, 'permissions');
-
-    Map<String, dynamic> permissionData = {
-      'id': documentId,
-      'uid': uid,
-      'description': description,
-      'type': type,
-      'status': 'pending',
-      'date': formattedDate,
-      'image': imageUrl,
-      'checked_by_admin': false,
-      'createdTimestamp': FieldValue.serverTimestamp(),
-    };
-
-    await _firestore.collection('permissions').doc(documentId).set(permissionData);
-  }
-
-  Future<bool> hasPermission(String uid, DateTime date) async {
-    String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-    DocumentSnapshot snapshot = await _firestore.collection('permissions').doc(documentId).get();
-    return snapshot.exists;
-  }
-
-  Future<String?> checkPermissionStatus(String uid, DateTime date) async {
-    String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-    DocumentSnapshot snapshot = await _firestore.collection('permissions').doc(documentId).get();
-
-    if (snapshot.exists) {
-      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-      return data['status'] as String?;
-    }
-    return null;
-  }
-
-  Future<String?> checkDinasStatus(String uid, DateTime date) async {
-    String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-    DocumentSnapshot snapshot = await _firestore.collection('dinas').doc(documentId).get();
-
-    if (snapshot.exists) {
-      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-      return data['status'] as String?;
-    }
-    return null;
-  }
-
-  Future<void> submitDinasForm(String uid, DateTime date, String description, String filePath) async {
-    String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-
-    String fileUrl = await _uploadFileAndGetUrl(uid, filePath, 'dinas');
-
-    Map<String, dynamic> dinasData = {
-      'id': documentId,
-      'uid': uid,
-      'description': description,
-      'date': formattedDate,
-      'type': "Izin Dinas",
-      'file': fileUrl,
-      'status': 'pending',
-      'checked_by_admin': false,
-      'createdTimestamp': FieldValue.serverTimestamp(),
-    };
-
-    await _firestore.collection('dinas').doc(documentId).set(dinasData);
-  }
-
-  Future<String> _uploadFileAndGetUrl(String uid, String filePath, String type) async {
-    File file = File(filePath);
-    String fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}';
-    Reference ref = _firebaseStorage.ref().child('dinas').child(uid).child(fileName);
-    UploadTask uploadTask = ref.putFile(file);
-    TaskSnapshot taskSnapshot = await uploadTask;
-    return await taskSnapshot.ref.getDownloadURL();
   }
 
   Future<void> autoRecordAttendanceOut(String uid, DateTime currentDateTime) async {
@@ -375,31 +303,31 @@ class AttendanceRepository {
     DocumentSnapshot snapshot = await _firestore.collection('attendance').doc(documentId).get();
 
     if (currentDateTime.hour >= 12 && currentDateTime.minute >= 15 && !snapshot.exists) {
-      Map<String, dynamic> absentData = {
-        'id': documentId,
-        'uid': uid,
-        'date': formattedDate,
-        'attendanceStatus': 'alfa',
-        'description': 'Absen Otomatis',
-        'status': 'diterima',
-        'timestamp': FieldValue.serverTimestamp(),
-        'in': {
+      AttendanceModel absentModel = AttendanceModel(
+        id: documentId,
+        uid: uid,
+        date: formattedDate,
+        inData: {
           'image': 'https://picsum.photos/200/300',
           'in': false,
           'location': '---',
           'status': 'ALFA',
           'time': '--:--:--',
         },
-        'out': {
+        outData: {
           'image': 'https://picsum.photos/200/300',
           'in': false,
           'location': '---',
           'status': 'ALFA',
           'time': '--:--:--',
         },
-      };
+        attendanceStatus: 'alfa',
+        description: 'Absen Otomatis',
+        status: 'diterima',
+        timestamp: Timestamp.now(),
+      );
 
-      await _firestore.collection('attendance').doc(documentId).set(absentData);
+      await _firestore.collection('attendance').doc(documentId).set(absentModel.toMap());
     }
   }
 
@@ -414,71 +342,33 @@ class AttendanceRepository {
     return false;
   }
 
-  Future<void> recordOvertime(String uid, DateTime date) async {
+  Future<bool> isHoliday(DateTime date) async{
     String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-
-    if (date.hour >= 11 && date.minute >= 50 && await hasCheckedIn(uid, date) && !await hasCheckedOut(uid,date)) {
-      await _firestore.collection('attendance').doc(documentId).set({
-        'out': {
-          'status':"Pulang Lembur"
-        },
-        'attendanceStatus':'lembur',
-        'description': 'Melakukan Lembur',
-      }, SetOptions(merge: true));
-    } else {
-      throw Exception("Overtime caan only be recorded after 11:50 and if the user has checked in and haven't checkout.");
+    DocumentSnapshot snapshot = await _firestore.collection('events').doc(formattedDate).get();
+    if(snapshot.exists){
+      return true;
     }
+    return false;
   }
 
-  Future<bool> hasOvertime(String uid, DateTime date) async {
-    String formattedDate = _formatDate(date);
-    String documentId = '${uid}_$formattedDate';
-    DocumentSnapshot snapshot = await _firestore.collection('attendance').doc(documentId).get();
-
-    if (snapshot.exists) {
-      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-      return data['attendanceStatus'] == 'lembur';
-    } else {
-      return false;
-    }
-  }
-
-  Future<void> forgetAttendance(String uid, DateTime date, String filePath, String description) async {
+  Future<void> insertForgetAttendance(String uid, DateTime date, String filePath, String description) async {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
     String fileUrl = await _uploadFileAndGetUrl(uid, filePath, 'forgot_attendance');
 
-    CollectionReference attendanceCollection = FirebaseFirestore.instance.collection('forgot_attendance');
-    await attendanceCollection.doc(documentId).set({
-      'id': documentId,
-      'uid': uid,
-      'date': formattedDate,
-      'file_url': fileUrl,
-      'description': description,
-      'checked_by_admin': false,
-      'status': 'pending',
-      'createdTimestamp': FieldValue.serverTimestamp(),
-    });
-  }
+    ForgetAttendanceModel model = ForgetAttendanceModel(
+      id: documentId,
+      uid: uid,
+      date: formattedDate,
+      fileUrl: fileUrl,
+      description: description,
+      checkedByAdmin: false,
+      status: 'pending',
+      createdTimestamp: Timestamp.now(),
+    );
 
-  Future<int> fetchOvertimeDurationForMonth(String uid, String month) async {
-    String startDate = '$month-01';
-    String endDate = '$month-31';
-
-    QuerySnapshot snapshot = await _firestore.collection('overtime')
-        .where('uid', isEqualTo: uid)
-        .where('date', isGreaterThanOrEqualTo: startDate)
-        .where('date', isLessThanOrEqualTo: endDate)
-        .orderBy('date', descending: true)
-        .get();
-
-    int totalDuration = snapshot.docs.fold(0, (sum, doc) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      return sum + (data["duration"] ?? 0) as int;
-    });
-
-    return totalDuration;
+    CollectionReference attendanceCollection = _firestore.collection('forgot_attendance');
+    await attendanceCollection.doc(documentId).set(model.toMap());
   }
 }

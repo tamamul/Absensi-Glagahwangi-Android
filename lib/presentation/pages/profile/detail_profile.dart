@@ -15,7 +15,7 @@ class FullProfile extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => UserBloc(userRepository: UserRepository())
-        ..add(FetchUser(authUser.id!)),
+        ..add(FetchUser(authUser.id)),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -102,7 +102,7 @@ class FullProfile extends StatelessWidget {
   Widget _buildProfileItem(String label, String value, {bool isMultiLine = false}) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: ColorPalette.profile_background,
+        color: ColorPalette.profileBackground,
         borderRadius: BorderRadius.circular(10),
       ),
       child: SizedBox(
@@ -116,7 +116,7 @@ class FullProfile extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  color: ColorPalette.profile_text,
+                  color: ColorPalette.profileText,
                   fontFamily: "Manrope",
                   fontSize: 18,
                 ),
@@ -126,7 +126,7 @@ class FullProfile extends StatelessWidget {
                 child: Text(
                   value,
                   style: const TextStyle(
-                    color: ColorPalette.main_text,
+                    color: ColorPalette.mainText,
                     fontFamily: "Manrope",
                     fontSize: 18,
                     fontWeight: FontWeight.w700,

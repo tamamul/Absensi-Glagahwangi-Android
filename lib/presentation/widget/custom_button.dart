@@ -11,7 +11,7 @@ class CustomButton extends StatelessWidget {
 
   const CustomButton({
     super.key,
-    this.buttonColor = ColorPalette.main_green,
+    this.buttonColor = ColorPalette.mainGreen,
     this.textColor = Colors.white,
     this.textSize = 20,
     this.dismissKeyboard = false,

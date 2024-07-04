@@ -22,21 +22,21 @@ class Profile extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => UserBloc(userRepository: UserRepository())
-        ..add(FetchUser(authUser.id!)),
+        ..add(FetchUser(authUser.id)),
       child: Scaffold(
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
           child: SingleChildScrollView(
             child: BlocBuilder<UserBloc, UserState>(
               builder: (context, state) {
                 if (state is UserInitial || state is UserLoading) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 } else if (state is UserLoaded) {
                   final user = state.user;
                   return Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -51,11 +51,11 @@ class Profile extends StatelessWidget {
                           backgroundColor: Colors.grey,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         user.name,
-                        style: TextStyle(
-                          color: ColorPalette.main_text,
+                        style: const TextStyle(
+                          color: ColorPalette.mainText,
                           fontFamily: "Manrope",
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
@@ -65,7 +65,7 @@ class Profile extends StatelessWidget {
                       Text(
                         user.role,
                         style: const TextStyle(
-                          color: ColorPalette.secondary_text,
+                          color: ColorPalette.secondaryText,
                           fontFamily: "Manrope",
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -86,7 +86,7 @@ class Profile extends StatelessWidget {
                             // Trigger a reload of the user data
                             context
                                 .read<UserBloc>()
-                                .add(FetchUser(authUser.id!));
+                                .add(FetchUser(authUser.id));
                           }
                         },
                       ),
@@ -127,7 +127,7 @@ class Profile extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ForgotAttendance(),
+                              builder: (context) => const ForgotAttendance(),
                             ),
                           );
                         },
@@ -145,7 +145,7 @@ class Profile extends StatelessWidget {
                 } else if (state is UserError) {
                   return Center(child: Text('Error: ${state.message}'));
                 } else {
-                  return Center(child: Text('Unknown state'));
+                  return const Center(child: Text('Unknown state'));
                 }
               },
             ),

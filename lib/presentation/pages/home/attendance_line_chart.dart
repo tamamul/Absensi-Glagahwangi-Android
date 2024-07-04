@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
+import '../../../domain/entity/attendance.dart';
 
 class AttendanceLineChart extends StatefulWidget {
-  final List<Map<String, dynamic>> attendanceList;
+  final List<AttendanceEntity> attendanceList;
 
   const AttendanceLineChart(this.attendanceList, {super.key});
 
@@ -31,11 +32,11 @@ class AttendanceLineChartState extends State<AttendanceLineChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 "Bagan Perbandingan",
                 style: TextStyle(
                   fontFamily: "Manrope",
-                  color: ColorPalette.main_text,
+                  color: ColorPalette.mainText,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
@@ -68,14 +69,14 @@ class AttendanceLineChartState extends State<AttendanceLineChart> {
                       getTitlesWidget: leftTitles,
                     ),
                   ),
-                  rightTitles: AxisTitles(
+                  rightTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
-                  topTitles: AxisTitles(
+                  topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
                 ),
-                gridData: FlGridData(show: true),
+                gridData: const FlGridData(show: true),
                 borderData: FlBorderData(
                   show: true,
                   border: const Border(
@@ -174,7 +175,7 @@ class AttendanceLineChartState extends State<AttendanceLineChart> {
       text = '15';
     } else if (value == 20) {
       text = '20';
-    } else if (value == 25){
+    } else if (value == 25) {
       text = '25';
     } else {
       return Container();
@@ -205,16 +206,16 @@ class AttendanceLineChartState extends State<AttendanceLineChart> {
   }
 
   List<FlSpot> _generateSpots(String status) {
-    List<Map<String, dynamic>> attendanceList = widget.attendanceList;
+    List<AttendanceEntity> attendanceList = widget.attendanceList;
 
     Map<int, double> monthlyCounts = {};
 
     for (var attendance in attendanceList) {
-      DateTime date = DateTime.parse(attendance['date']);
+      DateTime date = DateTime.parse(attendance.date);
       int month = date.month;
       String year = DateFormat.y().format(date);
 
-      if (year == _selectedYear && attendance['attendanceStatus'] == status) {
+      if (year == _selectedYear && attendance.attendanceStatus == status) {
         monthlyCounts[month] = (monthlyCounts[month] ?? 0) + 1;
       }
     }

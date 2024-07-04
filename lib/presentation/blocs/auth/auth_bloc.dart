@@ -1,17 +1,17 @@
 import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../data/model/user_model.dart';
-import '../../../domain/entity/user.dart';
 import '../../../data/repository/auth_repository.dart';
+import '../../../domain/entity/user.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
-  StreamSubscription<User>? _userSubscription;
+  StreamSubscription<UserEntity>? _userSubscription;
 
   AuthBloc({required AuthRepository authRepository})
       : _authRepository = authRepository,
@@ -39,7 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onFetchUserData(FetchUserData event, Emitter<AuthState> emit) async {
     try {
-      final user = await _authRepository.fetchUserData();
+      final user = await _authRepository.getUserData();
       emit(user.isNotEmpty ? AuthState.authenticated(user) : const AuthState.unauthenticated());
     } catch (e) {
       emit(const AuthState.unauthenticated());
