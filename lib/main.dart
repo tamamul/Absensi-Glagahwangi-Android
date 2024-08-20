@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'data/repository/attendance_repository.dart';
 import 'data/repository/auth_repository.dart';
 import 'data/repository/dinas_repository.dart';
+import 'data/repository/forgot_attendance_repository.dart';
 import 'data/repository/map_repository.dart';
 import 'data/repository/overtime_repository.dart';
 import 'data/repository/permission_repository.dart';
@@ -37,10 +38,11 @@ Future<void> main() async {
   final overtimeRepository = OvertimeRepository();
   final dinasRepository = DinasRepository();
   final permissionRepository = PermissionsRepository();
+  final forgotAttendanceRepository = ForgotAttendanceRepository();
 
-  var user = await authRepository.user.first;
+  var user = await userRepository.user.first;
 
-  AutomaticTask automaticTask = AutomaticTask(attendanceRepository,eventRepository);
+  AutomaticTask automaticTask = AutomaticTask(attendanceRepository,eventRepository, overtimeRepository);
   automaticTask.scheduleAutomaticAttendanceCheck(user.id);
 
   runApp(App(
@@ -52,5 +54,6 @@ Future<void> main() async {
     overtimeRepository: overtimeRepository,
     dinasRepository: dinasRepository,
     permissionRepository: permissionRepository,
+    forgotAttendanceRepository: forgotAttendanceRepository,
   ));
 }

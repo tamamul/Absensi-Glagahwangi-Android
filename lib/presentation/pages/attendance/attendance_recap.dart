@@ -6,18 +6,18 @@ import '../../../data/repository/attendance_repository.dart';
 import '../../../domain/entity/attendance.dart';
 import '../../../utils/color_palette.dart';
 import '../../blocs/attendance/attendance_data/attendance_data_bloc.dart';
+import '../../blocs/user/user_bloc.dart';
 
 class AttendanceRecap extends StatelessWidget {
-  final String uid;
-
-  const AttendanceRecap({super.key, required this.uid});
+  const AttendanceRecap({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
     return BlocProvider(
       create: (context) =>
       AttendanceDataBloc(context.read<AttendanceRepository>())
-        ..add(FetchAttendanceList(uid)),
+        ..add(GetAttendanceList(authUser.id)),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -48,9 +48,7 @@ class AttendanceRecap extends StatelessWidget {
                   if (directory != null) {
                     const downloadPath =
                         '/storage/emulated/0/Download';
-                    await context
-                        .read<AttendanceRepository>()
-                        .exportAttendanceToExcel(uid, downloadPath);
+                    context.read<AttendanceDataBloc>().add(ExportAttendanceToExcel(authUser.id, downloadPath, DateTime.now()));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content:

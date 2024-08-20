@@ -171,6 +171,6 @@ class OvertimeDataWidgetState extends State<OvertimeDataWidget> {
     final int monthIndex = _months.indexOf(_selectedMonth) + 1;
     final formattedMonth = monthIndex.toString().padLeft(2, '0');
     final formattedDate = '$_selectedYear-$formattedMonth';
-    widget.overtimeDataBloc.add(FetchOvertimeDurationForMonth(widget.id, formattedDate));
+    widget.overtimeDataBloc.add(GetOvertimeDurationForMonth(widget.id, formattedDate));
   }
 }

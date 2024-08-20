@@ -9,7 +9,7 @@ class PermissionsModel {
   final String date;
   final String file;
   final bool checkedByAdmin;
-  final Timestamp createdTimestamp;
+  final dynamic createdTimestamp;
 
   PermissionsModel({
     required this.id,
@@ -34,7 +34,7 @@ class PermissionsModel {
       date: data['date'] ?? '',
       file: data['file'] ?? '',
       checkedByAdmin: data['checked_by_admin'] ?? false,
-      createdTimestamp: data['createdTimestamp'] ?? Timestamp.now(),
+      createdTimestamp: data['createdTimestamp'] is Timestamp ? data['createdTimestamp'] : Timestamp.now(),
     );
   }
 

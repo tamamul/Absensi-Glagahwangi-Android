@@ -9,10 +9,10 @@ class OvertimeDataBloc extends Bloc<OvertimeDataEvent, OvertimeDataState> {
   final OvertimeRepository overtimeRepository;
 
   OvertimeDataBloc(this.overtimeRepository) : super(OvertimeDataInitial()) {
-    on<FetchOvertimeDurationForMonth>(_onFetchOvertimeDurationForMonth);
+    on<GetOvertimeDurationForMonth>(_onFetchOvertimeDurationForMonth);
   }
 
-  Future<void> _onFetchOvertimeDurationForMonth(FetchOvertimeDurationForMonth event, Emitter<OvertimeDataState> emit) async {
+  Future<void> _onFetchOvertimeDurationForMonth(GetOvertimeDurationForMonth event, Emitter<OvertimeDataState> emit) async {
     emit(OvertimeDataLoading());
     try {
       final duration = await overtimeRepository.getOvertimeDurationForMonth(event.uid, event.month);

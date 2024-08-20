@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../model/overtime_model.dart';
+
 class OvertimeRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -10,31 +12,48 @@ class OvertimeRepository {
   Future<bool> hasOvertime(String uid, DateTime date) async {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
-    DocumentSnapshot snapshot = await _firestore.collection('attendance').doc(documentId).get();
+    DocumentSnapshot snapshot = await _firestore.collection('overtime').doc(documentId).get();
 
-    if (snapshot.exists) {
+    if (snapshot.exists && snapshot.data() != null) {
       Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-      return data['attendanceStatus'] == 'lembur';
-    } else {
-      return false;
+      return data['status'] == 'lembur' || data['status'] == "belum absen keluar";
     }
+    return false;
   }
 
-  Future<void> insertOvertime(String uid, DateTime date) async {
+  Future<void> recordOvertime(String uid, DateTime date) async {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
     if (date.hour >= 11 && date.minute >= 50 && await _hasCheckedIn(uid, date) && !await _hasCheckedOut(uid,date)) {
-      await _firestore.collection('attendance').doc(documentId).set({
-        'out': {
-          'status':"Pulang Lembur"
-        },
-        'attendanceStatus':'lembur',
-        'description': 'Melakukan Lembur',
-      }, SetOptions(merge: true));
+      OvertimeModel overtimeModel = OvertimeModel(
+        id: documentId,
+        uid: uid,
+        date: formattedDate,
+        status: "belum absen keluar",
+        finish: "0",
+        duration: 0,
+      );
+      await _firestore.collection('overtime').doc(documentId).set(overtimeModel.toMap(), SetOptions(merge: true));
     } else {
       throw Exception("Overtime can only be recorded after 11:50 and if the user has checked in and haven't checkout.");
     }
+  }
+
+  Future<void> nullifyOvertime(String uid, DateTime date) async {
+    String formattedDate = _formatDate(date);
+    String documentId = '${uid}_$formattedDate';
+
+    DocumentSnapshot snapshot = await _firestore.collection('overtime').doc(documentId).get();
+    if (snapshot.exists && snapshot.data() != null) {
+      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+      if (data['status'] == "belum absen keluar") {
+        await _firestore.collection('overtime').doc(documentId).set({
+          'status': 'dibatalkan',
+        }, SetOptions(merge: true));
+      }
+    }
+
   }
 
   Future<bool> _hasCheckedIn(String uid, DateTime date) async {

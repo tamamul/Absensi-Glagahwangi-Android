@@ -6,10 +6,25 @@ import '../../blocs/user/user_bloc.dart';
 import '../../widget/custom_button.dart';
 import '../../widget/form_field.dart';
 import '../../../utils/color_palette.dart';
-import '../../blocs/auth/auth_bloc.dart';
 
-class EditProfile extends StatelessWidget {
+class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
+
+  @override
+  _EditProfileState createState() => _EditProfileState();
+}
+
+class _EditProfileState extends State<EditProfile> {
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController alamatController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserBloc>().add(const ReloadUser()); // Add this line to reload user data
+  }
 
   Future<void> _pickImage(BuildContext context) async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -20,15 +35,6 @@ class EditProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController phoneController = TextEditingController();
-    final TextEditingController alamatController = TextEditingController();
-
-    final authState = context.read<AuthBloc>().state;
-    context.read<UserBloc>().add(FetchUser(authState.user.id));
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -59,7 +65,7 @@ class EditProfile extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Profile updated successfully')),
               );
-              Navigator.pop(context, true); // Pass true as result
+              Navigator.pop(context, true); // Return to previous page with success
             } else if (state is UserUpdateFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.error)),
@@ -78,7 +84,6 @@ class EditProfile extends StatelessWidget {
               } else if (state is UserLoaded) {
                 final user = state.user;
                 nameController.text = user.name;
-                emailController.text = user.email;
                 phoneController.text = user.phone;
                 alamatController.text = user.alamat;
                 final photoURL = user.picture;
@@ -108,11 +113,9 @@ class EditProfile extends StatelessWidget {
                                   backgroundColor: Colors.grey,
                                   backgroundImage: image != null
                                       ? FileImage(image)
-                                      // ignore: unnecessary_null_comparison
                                       : photoURL != null
                                       ? NetworkImage(photoURL) as ImageProvider
                                       : null,
-                                  // ignore: unnecessary_null_comparison
                                   child: image == null && photoURL == null
                                       ? const Icon(Icons.person, size: 80, color: Colors.white)
                                       : null,
@@ -165,7 +168,6 @@ class EditProfile extends StatelessWidget {
                         if (formKey.currentState?.validate() ?? false) {
                           final updatedUser = user.copyWith(
                             name: nameController.text,
-                            email: emailController.text,
                             phone: phoneController.text,
                             alamat: alamatController.text,
                           );
@@ -179,7 +181,7 @@ class EditProfile extends StatelessWidget {
               } else if (state is UserError) {
                 return Center(child: Text('Error: ${state.message}'));
               } else {
-                return const Center(child: Text('Unknown state'));
+                return const Center(child: CircularProgressIndicator());
               }
             },
           ),

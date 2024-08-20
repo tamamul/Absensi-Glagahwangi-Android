@@ -12,7 +12,7 @@ class PermissionsRepository {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
-  Future<void> insertPermissionForm(String uid, DateTime date, String type, String description, String filePath) async {
+  Future<void> recordPermission(String uid, DateTime date, String type, String description, String filePath) async {
     String formattedDate = formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
@@ -27,7 +27,7 @@ class PermissionsRepository {
       date: formattedDate,
       file: fileUrl,
       checkedByAdmin: false,
-      createdTimestamp: FieldValue.serverTimestamp() as Timestamp,
+      createdTimestamp: FieldValue.serverTimestamp(),
     );
 
     await _firestore.collection('permissions').doc(documentId).set(permissionData.toMap());

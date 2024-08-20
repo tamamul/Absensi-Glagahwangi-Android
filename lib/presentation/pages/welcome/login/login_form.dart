@@ -3,7 +3,6 @@ import 'package:absensi_glagahwangi/presentation/widget/form_field.dart';
 import 'package:absensi_glagahwangi/utils/color_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../cubits/login/login_cubit.dart';
 import '../reset_password.dart';
 
@@ -14,10 +13,11 @@ class LoginForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
       listener: (context, state) {
-        if (state.status == LoginStatus.error) {
+        if (state.status == LoginStatus.success) {
+          // Automatically handled by FlowBuilder
+        } else if (state.status == LoginStatus.error) {
           final snackBar = SnackBar(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             behavior: SnackBarBehavior.floating,
             elevation: 4,
@@ -34,11 +34,9 @@ class LoginForm extends StatelessWidget {
             ),
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        } else if (state.status == LoginStatus.noInternet){
-          state.status == LoginStatus.noInternet;
+        } else if (state.status == LoginStatus.noInternet) {
           final snackBar = SnackBar(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             behavior: SnackBarBehavior.floating,
             elevation: 4,
@@ -65,30 +63,23 @@ class LoginForm extends StatelessWidget {
               return CustomFormField(
                 fieldName: "Email",
                 label: "Email",
-                onChanged: (email) =>
-                    context.read<LoginCubit>().emailChanged(email),
+                onChanged: (email) => context.read<LoginCubit>().emailChanged(email),
               );
             },
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           BlocBuilder<LoginCubit, LoginState>(
-            buildWhen: (previous, current) =>
-                previous.password != current.password,
+            buildWhen: (previous, current) => previous.password != current.password,
             builder: (context, state) {
               return CustomFormField(
                 isPassword: true,
                 fieldName: "Password",
                 label: "Password",
-                onChanged: (password) =>
-                    context.read<LoginCubit>().passwordChanged(password),
+                onChanged: (password) => context.read<LoginCubit>().passwordChanged(password),
               );
             },
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -122,20 +113,18 @@ class LoginForm extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           BlocBuilder<LoginCubit, LoginState>(
             buildWhen: (previous, current) => previous.status != current.status,
             builder: (context, state) {
               return state.status == LoginStatus.submitting
                   ? const CircularProgressIndicator()
                   : CustomButton(
-                      text: 'Masuk',
-                      onPressed: () {
-                        context.read<LoginCubit>().logInWithCredentials();
-                      },
-                    );
+                text: 'Masuk',
+                onPressed: () {
+                  context.read<LoginCubit>().logInWithCredentials();
+                },
+              );
             },
           ),
         ],

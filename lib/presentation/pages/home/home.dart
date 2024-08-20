@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../data/repository/user_repository.dart';
 import '../../../data/repository/attendance_repository.dart';
+import '../../../domain/entity/user.dart';
 import '../../blocs/attendance/attendance_data/attendance_data_bloc.dart';
 import '../../blocs/attendance/overtime/overtime_data_bloc.dart';
 import '../../blocs/auth/auth_bloc.dart';
@@ -17,27 +18,27 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserBloc>(
           create: (context) => UserBloc(userRepository: UserRepository())
-            ..add(FetchUser(authUser.id)),
+            ..add(getUser(authUser.id)),
         ),
         BlocProvider<AttendanceDataBloc>(
           create: (context) => AttendanceDataBloc(AttendanceRepository())
-            ..add(FetchAttendanceList(authUser.id)),
+            ..add(GetAttendanceList(authUser.id)),
         ),
         BlocProvider<OvertimeDataBloc>(
           create: (context) => OvertimeDataBloc(OvertimeRepository())
-            ..add(FetchOvertimeDurationForMonth(authUser.id, DateFormat('yyyy-MM').format(DateTime.now()))),
+            ..add(GetOvertimeDurationForMonth(authUser.id, DateFormat('yyyy-MM').format(DateTime.now()))),
         ),
       ],
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 40, 12, 10),
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

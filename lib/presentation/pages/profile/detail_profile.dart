@@ -11,11 +11,11 @@ class FullProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
 
     return BlocProvider(
       create: (context) => UserBloc(userRepository: UserRepository())
-        ..add(FetchUser(authUser.id)),
+        ..add(getUser(authUser.id)),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(

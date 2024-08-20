@@ -11,10 +11,10 @@ class HolidayBloc extends Bloc<HolidayEvent, HolidayState> {
   final HolidayRepository holidayRepository;
 
   HolidayBloc({required this.holidayRepository}) : super(HolidayInitial()) {
-    on<FetchHoliday>(_onFetchEvents);
+    on<getHoliday>(_onGetHolidays);
   }
 
-  void _onFetchEvents(FetchHoliday holiday, Emitter<HolidayState> emit) async {
+  void _onGetHolidays(getHoliday holiday, Emitter<HolidayState> emit) async {
     emit(HolidayLoading());
     try {
       final holidays = await holidayRepository.getHolidays();

@@ -64,7 +64,7 @@ class _AttendancePieChartState extends State<AttendancePieChart> {
     int total = _statusCount.values.fold(0, (a, b) => a + b);
 
     return Container(
-      height: 380,
+      height: 420,
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black, width: 1),

@@ -1,7 +1,6 @@
 import 'package:absensi_glagahwangi/data/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../utils/color_palette.dart';
 import '../../../cubits/login/login_cubit.dart';
 import 'login_form.dart';
@@ -14,46 +13,49 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              children: [
-                const Center(
-                    child: Image(
-                        image: AssetImage('assets/images/logo.png'),
-                        height: 140)),
-                const Text(
-                  'Selamat Datang',
-                  style: TextStyle(
-                    color: ColorPalette.mainText,
-                    fontFamily: "Manrope",
-                    fontSize: 34,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  textAlign: TextAlign.start,
+      backgroundColor: Colors.white,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            children: [
+              const Center(
+                child: Image(
+                  image: AssetImage('assets/images/logo.png'),
+                  height: 140,
                 ),
-                const Text(
-                  "Silahkan Masuk dengan Username dan Password yang Telah Diberikan",
-                  style: TextStyle(
-                    color: ColorPalette.secondaryText,
-                    fontFamily: "Manrope",
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  textAlign: TextAlign.center,
+              ),
+              const Text(
+                'Selamat Datang',
+                style: TextStyle(
+                  color: ColorPalette.mainText,
+                  fontFamily: "Manrope",
+                  fontSize: 34,
+                  fontWeight: FontWeight.w900,
                 ),
-                const SizedBox(
-                  height: 20,
+                textAlign: TextAlign.start,
+              ),
+              const Text(
+                "Silahkan Masuk dengan Username dan Password yang Telah Diberikan",
+                style: TextStyle(
+                  color: ColorPalette.secondaryText,
+                  fontFamily: "Manrope",
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                 ),
-                BlocProvider(
-                  create: (_) => LoginCubit(context.read<AuthRepository>()),
-                  child: const LoginForm(),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              BlocProvider(
+                create: (context) => LoginCubit(
+                  context.read<AuthRepository>(),
                 ),
-              ],
-            ),
+                child: const LoginForm(),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

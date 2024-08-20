@@ -1,48 +1,51 @@
 part of 'user_bloc.dart';
 
 abstract class UserState extends Equatable {
-  const UserState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class UserInitial extends UserState {}
-
-class UserLoading extends UserState {}
-
-class UserLoaded extends UserState {
   final UserEntity user;
   final File? imageFile;
 
-  const UserLoaded(this.user, {this.imageFile});
+  const UserState({this.user = UserEntity.empty, this.imageFile});
 
   @override
   List<Object?> get props => [user, imageFile];
 }
 
+class UserInitial extends UserState {
+  const UserInitial() : super();
+}
+
+class UserLoading extends UserState {
+  const UserLoading() : super();
+}
+
+class UserLoaded extends UserState {
+  const UserLoaded(UserEntity user, {File? imageFile}) : super(user: user, imageFile: imageFile);
+}
+
 class UserError extends UserState {
   final String message;
 
-  const UserError(this.message);
+  const UserError(this.message) : super();
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, user, imageFile];
 }
 
-class UserUpdateInitial extends UserState {}
+class UserUpdateLoading extends UserState {
+  const UserUpdateLoading(UserEntity user) : super(user: user);
+}
 
-class UserUpdateLoading extends UserState {}
-
-class UserUpdateSuccess extends UserState {}
+class UserUpdateSuccess extends UserState {
+  const UserUpdateSuccess(UserEntity user) : super(user: user);
+}
 
 class UserUpdateFailure extends UserState {
   final String error;
 
-  const UserUpdateFailure(this.error);
+  const UserUpdateFailure(this.error, UserEntity user) : super(user: user);
 
   @override
-  List<Object?> get props => [error];
+  List<Object?> get props => [error, user, imageFile];
 }
 
 class UserForgetPasswordInitial extends UserState {}

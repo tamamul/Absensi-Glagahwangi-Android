@@ -18,11 +18,11 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
 
     return BlocProvider(
       create: (context) => UserBloc(userRepository: UserRepository())
-        ..add(FetchUser(authUser.id)),
+        ..add(getUser(authUser.id)),
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
@@ -86,7 +86,7 @@ class Profile extends StatelessWidget {
                             // Trigger a reload of the user data
                             context
                                 .read<UserBloc>()
-                                .add(FetchUser(authUser.id));
+                                .add(getUser(authUser.id));
                           }
                         },
                       ),
@@ -137,7 +137,7 @@ class Profile extends StatelessWidget {
                         onPressed: () {
                           context
                               .read<AuthBloc>()
-                              .add(const AuthLogoutRequested());
+                              .add(const AuthLogout());
                         },
                       ),
                     ],

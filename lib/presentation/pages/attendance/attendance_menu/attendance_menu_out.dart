@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../data/repository/attendance_repository.dart';
 import '../../../../data/repository/dinas_repository.dart';
+import '../../../../data/repository/forgot_attendance_repository.dart';
 import '../../../../data/repository/map_repository.dart';
 import '../../../../data/repository/overtime_repository.dart';
 import '../../../../data/repository/permission_repository.dart';
@@ -13,6 +14,7 @@ import '../../../../utils/color_palette.dart';
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../blocs/maps/maps_bloc.dart';
 import '../../../blocs/attendance/attendance_bloc.dart';
+import '../../../blocs/user/user_bloc.dart';
 
 class AttendanceMenuOut extends StatefulWidget {
   const AttendanceMenuOut({super.key});
@@ -37,11 +39,12 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
 
   @override
   Widget build(BuildContext context) {
-    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
     final attendanceRepository = AttendanceRepository();
     final dinasRepository = DinasRepository();
     final permissionRepository = PermissionsRepository();
     final overtimeRepository = OvertimeRepository();
+    final forgotAttendanceRepository = ForgotAttendanceRepository();
 
     return MultiBlocProvider(
       providers: [
@@ -49,7 +52,7 @@ class _AttendanceMenuOutState extends State<AttendanceMenuOut> {
           create: (context) => MapsBloc(MapRepository())..add(GetCurrentLocationEvent()),
         ),
         BlocProvider(
-          create: (context) => AttendanceBloc(attendanceRepository: attendanceRepository, dinasRepository: dinasRepository, permissionsRepository: permissionRepository, overtimeRepository: overtimeRepository),
+          create: (context) => AttendanceBloc(attendanceRepository: attendanceRepository, dinasRepository: dinasRepository, permissionsRepository: permissionRepository, overtimeRepository: overtimeRepository, forgotAttendanceRepository: forgotAttendanceRepository),
         ),
       ],
       child: Scaffold(

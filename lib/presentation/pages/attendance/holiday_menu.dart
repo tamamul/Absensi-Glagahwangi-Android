@@ -11,7 +11,7 @@ class HolidayMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HolidayBloc(holidayRepository: HolidayRepository())..add(FetchHoliday()),
+      create: (context) => HolidayBloc(holidayRepository: HolidayRepository())..add(getHoliday()),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(

@@ -90,11 +90,6 @@ class _NavBarState extends State<NavBar> {
                       Icon(Icons.person, color: ColorPalette.mainGreen),
                   label: 'Profil',
                 ),
-                // NavigationDestination(
-                //   icon: Icon(Icons.favorite_outline),
-                //   selectedIcon: Icon(Icons.favorite),
-                //   label: 'Favorites',
-                // ),
               ],
             ),
           ),

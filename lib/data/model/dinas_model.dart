@@ -9,7 +9,7 @@ class DinasModel {
   final String file;
   final String status;
   final bool checkedByAdmin;
-  final Timestamp createdTimestamp;
+  final dynamic createdTimestamp;
 
   DinasModel({
     required this.id,
@@ -34,7 +34,7 @@ class DinasModel {
       file: data['file'] ?? '',
       status: data['status'] ?? '',
       checkedByAdmin: data['checked_by_admin'] ?? false,
-      createdTimestamp: data['createdTimestamp'] ?? Timestamp.now(),
+      createdTimestamp: data['createdTimestamp'] is Timestamp ? data['createdTimestamp'] : Timestamp.now(),
     );
   }
 

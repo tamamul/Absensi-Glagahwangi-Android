@@ -5,6 +5,9 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../domain/entity/map.dart';
+import '../model/map_model.dart';
+
 class MapRepository {
   LatLng geofenceCenter = const LatLng(-7.6481967, 110.6633733);
   double geofenceRadius = 10.0;
@@ -17,11 +20,11 @@ class MapRepository {
           .get();
 
       if (snapshot.exists && snapshot.data() != null) {
-        geofenceRadius = snapshot.data()!['radius']?.toDouble() ?? geofenceRadius;
-        geofenceCenter = LatLng(
-          snapshot.data()!['lat']?.toDouble() ?? geofenceCenter.latitude,
-          snapshot.data()!['long']?.toDouble() ?? geofenceCenter.longitude,
-        );
+        MapModel mapModel = MapModel.fromFirestore(snapshot);
+        MapEntity mapEntity = mapModel.toEntity();
+
+        geofenceRadius = mapEntity.geofenceRadius;
+        geofenceCenter = mapEntity.geofenceCenter;
       }
     } catch (e) {
       if (kDebugMode) {

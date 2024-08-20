@@ -10,12 +10,13 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
   final AttendanceRepository attendanceRepository;
 
   AttendanceDataBloc(this.attendanceRepository) : super(AttendanceDataInitial()) {
-    on<FetchAttendanceForDate>(_onFetchAttendanceForDate);
-    on<FetchAttendanceList>(_onFetchAttendanceList);
-    on<FetchAttendanceForMonth>(_onFetchAttendanceForMonth);
+    on<GetAttendanceForDate>(_onFetchAttendanceForDate);
+    on<GetAttendanceList>(_onFetchAttendanceList);
+    on<GetAttendanceForMonth>(_onFetchAttendanceForMonth);
+    on<ExportAttendanceToExcel>(_onExportAttendanceToExcel);
   }
 
-  Future<void> _onFetchAttendanceForDate(FetchAttendanceForDate event, Emitter<AttendanceDataState> emit) async {
+  Future<void> _onFetchAttendanceForDate(GetAttendanceForDate event, Emitter<AttendanceDataState> emit) async {
     emit(AttendanceDataLoading());
     try {
       final attendanceData = await attendanceRepository.getAttendanceForDate(event.uid, event.date);
@@ -25,7 +26,7 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
     }
   }
 
-  Future<void> _onFetchAttendanceList(FetchAttendanceList event, Emitter<AttendanceDataState> emit) async {
+  Future<void> _onFetchAttendanceList(GetAttendanceList event, Emitter<AttendanceDataState> emit) async {
     emit(AttendanceDataLoading());
     try {
       final attendanceList = await attendanceRepository.getAttendanceList(event.uid);
@@ -35,7 +36,7 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
     }
   }
 
-  Future<void> _onFetchAttendanceForMonth(FetchAttendanceForMonth event, Emitter<AttendanceDataState> emit) async {
+  Future<void> _onFetchAttendanceForMonth(GetAttendanceForMonth event, Emitter<AttendanceDataState> emit) async {
     emit(AttendanceDataLoading());
     try {
       final attendanceList = await attendanceRepository.getAttendanceListForMonth(event.uid, event.month);
@@ -44,4 +45,17 @@ class AttendanceDataBloc extends Bloc<AttendanceDataEvent, AttendanceDataState> 
       emit(AttendanceDataFailure(e.toString()));
     }
   }
+
+  Future<void> _onExportAttendanceToExcel(ExportAttendanceToExcel event, Emitter<AttendanceDataState> emit) async {
+    emit(AttendanceExportLoading());
+    try {
+      await attendanceRepository.exportAttendanceToExcel(event.uid, event.outputPath);
+      emit(AttendanceExportSuccess(event.outputPath));
+      await _onFetchAttendanceForDate(GetAttendanceForDate(event.uid, event.date), emit);
+    } catch (e) {
+      emit(AttendanceExportFailure(e.toString()));
+      await _onFetchAttendanceForDate(GetAttendanceForDate(event.uid, event.date), emit);
+    }
+  }
 }
+

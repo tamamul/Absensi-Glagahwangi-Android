@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../utils/color_palette.dart';
 import '../../blocs/attendance/attendance_bloc.dart';
 import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/user/user_bloc.dart';
 
 class ForgotAttendance extends StatefulWidget {
   const ForgotAttendance({super.key});
@@ -58,7 +59,7 @@ class _ForgotAttendanceState extends State<ForgotAttendance> {
 
   @override
   Widget build(BuildContext context) {
-    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

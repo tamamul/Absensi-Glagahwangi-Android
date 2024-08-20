@@ -1,5 +1,6 @@
 import 'package:absensi_glagahwangi/data/repository/attendance_repository.dart';
 import 'package:absensi_glagahwangi/data/repository/auth_repository.dart';
+import 'package:absensi_glagahwangi/data/repository/forgot_attendance_repository.dart';
 import 'package:absensi_glagahwangi/data/repository/holiday_repository.dart';
 import 'package:absensi_glagahwangi/data/repository/overtime_repository.dart';
 import 'package:absensi_glagahwangi/presentation/blocs/attendance/attendance_bloc.dart';
@@ -26,6 +27,7 @@ class App extends StatelessWidget {
   final OvertimeRepository _overtimeRepository;
   final DinasRepository _dinasRepository;
   final PermissionsRepository _permissionRepository;
+  final ForgotAttendanceRepository _forgotAttendanceRepository;
 
   const App({
     super.key,
@@ -37,7 +39,7 @@ class App extends StatelessWidget {
     required OvertimeRepository overtimeRepository,
     required DinasRepository dinasRepository,
     required PermissionsRepository permissionRepository,
-
+    required ForgotAttendanceRepository forgotAttendanceRepository,
   })  : _authRepository = authRepository,
         _holidayRepository = holidayRepository,
         _userRepository = userRepository,
@@ -45,7 +47,8 @@ class App extends StatelessWidget {
         _attendanceRepository = attendanceRepository,
         _overtimeRepository = overtimeRepository,
         _dinasRepository = dinasRepository,
-        _permissionRepository = permissionRepository;
+        _permissionRepository = permissionRepository,
+        _forgotAttendanceRepository = forgotAttendanceRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +63,7 @@ class App extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(authRepository: _authRepository),
+            create: (context) => AuthBloc(authRepository: _authRepository, userRepository: _userRepository),
           ),
           BlocProvider<HolidayBloc>(
             create: (context) => HolidayBloc(holidayRepository: _holidayRepository),
@@ -72,7 +75,7 @@ class App extends StatelessWidget {
             create: (context) => MapsBloc(_mapRepository),
           ),
           BlocProvider<AttendanceBloc>(
-            create: (context) => AttendanceBloc(attendanceRepository: _attendanceRepository, dinasRepository: _dinasRepository, permissionsRepository: _permissionRepository, overtimeRepository: _overtimeRepository),
+            create: (context) => AttendanceBloc(attendanceRepository: _attendanceRepository, dinasRepository: _dinasRepository, permissionsRepository: _permissionRepository, overtimeRepository: _overtimeRepository, forgotAttendanceRepository: _forgotAttendanceRepository),
           ),
           BlocProvider<AttendanceDataBloc>(
             create: (context) => AttendanceDataBloc(_attendanceRepository),
@@ -89,10 +92,29 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: FlowBuilder<AuthStatus>(
-        state: context.select((AuthBloc bloc) => bloc.state.status),
-        onGeneratePages: onGenerateAppViewPages,
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        return MaterialApp(
+          home: FlowBuilder<AuthStatus>(
+            state: state.status,
+            onGeneratePages: onGenerateAppViewPages,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class LoadingPage extends StatelessWidget {
+  const LoadingPage({super.key});
+
+  static Page<void> page() => const MaterialPage<void>(child: LoadingPage());
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }

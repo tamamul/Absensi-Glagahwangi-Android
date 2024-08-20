@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:absensi_glagahwangi/data/repository/forgot_attendance_repository.dart';
 import 'package:absensi_glagahwangi/presentation/pages/attendance/attendance_menu/maps.dart';
 import 'package:absensi_glagahwangi/presentation/widget/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import '../../../../utils/color_palette.dart';
 import '../../../blocs/auth/auth_bloc.dart';
 import '../../../blocs/maps/maps_bloc.dart';
 import '../../../blocs/attendance/attendance_bloc.dart';
+import '../../../blocs/user/user_bloc.dart';
 
 class AttendanceMenuIn extends StatefulWidget {
   const AttendanceMenuIn({super.key});
@@ -38,11 +40,12 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
 
   @override
   Widget build(BuildContext context) {
-    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
     final attendanceRepository = AttendanceRepository();
     final dinasRepository = DinasRepository();
     final permissionRepository = PermissionsRepository();
     final overtimeRepository = OvertimeRepository();
+    final forgotAttendanceRepository = ForgotAttendanceRepository();
 
     return MultiBlocProvider(
       providers: [
@@ -50,7 +53,7 @@ class _AttendanceMenuInState extends State<AttendanceMenuIn> {
           create: (context) => MapsBloc(MapRepository())..add(GetCurrentLocationEvent()),
         ),
         BlocProvider(
-          create: (context) => AttendanceBloc(attendanceRepository: attendanceRepository, dinasRepository: dinasRepository, permissionsRepository: permissionRepository, overtimeRepository: overtimeRepository),
+          create: (context) => AttendanceBloc(attendanceRepository: attendanceRepository, dinasRepository: dinasRepository, permissionsRepository: permissionRepository, overtimeRepository: overtimeRepository, forgotAttendanceRepository: forgotAttendanceRepository),
         ),
       ],
       child: Scaffold(

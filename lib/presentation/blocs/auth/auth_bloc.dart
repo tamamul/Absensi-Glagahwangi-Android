@@ -1,9 +1,9 @@
 import 'dart:async';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../../../data/repository/auth_repository.dart';
+import '../../../data/repository/user_repository.dart';
 import '../../../domain/entity/user.dart';
 
 part 'auth_event.dart';
@@ -11,39 +11,37 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
-  StreamSubscription<UserEntity>? _userSubscription;
+  final UserRepository _userRepository;
+  StreamSubscription<firebase_auth.User?>? _userSubscription;
 
-  AuthBloc({required AuthRepository authRepository})
+  AuthBloc({required AuthRepository authRepository, required UserRepository userRepository})
       : _authRepository = authRepository,
-        super(authRepository.currentUser.isNotEmpty
-          ? AuthState.authenticated(authRepository.currentUser)
-          : const AuthState.unauthenticated()) {
-    on<AuthUserChanged>(_onUserChanged);
-    on<AuthLogoutRequested>(_onLogoutRequested);
-    on<FetchUserData>(_onFetchUserData);
+        _userRepository = userRepository,
+        super(const AuthState.loading()) {
+    on<AuthLogin>(_onUserChanged);
+    on<AuthLogout>(_onLogoutRequested);
 
-    _userSubscription = _authRepository.user.listen((user) {
-      add(AuthUserChanged(user));
-    });
+    _userSubscription = _authRepository.user.listen(
+          (firebaseUser) async {
+        if (firebaseUser != null) {
+          final user = await _userRepository.getUserData();
+          add(AuthLogin(user));
+        } else {
+          add(const AuthLogin(UserEntity.empty));
+        }
+      },
+    );
   }
 
-  void _onUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
+  void _onUserChanged(AuthLogin event, Emitter<AuthState> emit) {
     emit(event.user.isNotEmpty
         ? AuthState.authenticated(event.user)
         : const AuthState.unauthenticated());
   }
 
-  void _onLogoutRequested(AuthLogoutRequested event, Emitter<AuthState> emit) {
-    unawaited(_authRepository.logOut());
-  }
-
-  Future<void> _onFetchUserData(FetchUserData event, Emitter<AuthState> emit) async {
-    try {
-      final user = await _authRepository.getUserData();
-      emit(user.isNotEmpty ? AuthState.authenticated(user) : const AuthState.unauthenticated());
-    } catch (e) {
-      emit(const AuthState.unauthenticated());
-    }
+  void _onLogoutRequested(AuthLogout event, Emitter<AuthState> emit) async {
+    await _authRepository.logOut();
+    emit(const AuthState.unauthenticated());
   }
 
   @override

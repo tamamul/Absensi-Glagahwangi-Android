@@ -121,7 +121,7 @@ class ResetPassword extends StatelessWidget {
                               text: "KIRIM",
                               onPressed: () {
                                 final email = emailController.text;
-                                context.read<UserBloc>().add(ForgetPasswordEvent(email));
+                                context.read<UserBloc>().add(resetPasswordEvent(email));
                               },
                             );
                           },

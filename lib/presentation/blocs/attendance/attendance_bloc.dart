@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../data/repository/attendance_repository.dart';
 import '../../../data/repository/dinas_repository.dart';
+import '../../../data/repository/forgot_attendance_repository.dart';
 import '../../../data/repository/overtime_repository.dart';
 import '../../../data/repository/permission_repository.dart';
 part 'attendance_event.dart';
@@ -12,12 +13,14 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   final DinasRepository dinasRepository;
   final PermissionsRepository permissionsRepository;
   final OvertimeRepository overtimeRepository;
+  final ForgotAttendanceRepository forgotAttendanceRepository;
 
   AttendanceBloc({
     required this.attendanceRepository,
     required this.dinasRepository,
     required this.permissionsRepository,
     required this.overtimeRepository,
+    required this.forgotAttendanceRepository,
   }) : super(AttendanceInitial()) {
     on<RecordAttendanceIn>(_onRecordAttendanceIn);
     on<RecordAttendanceOut>(_onRecordAttendanceOut);
@@ -92,7 +95,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   Future<void> _onSubmitPermissionForm(SubmitPermissionForm event, Emitter<AttendanceState> emit) async {
     emit(AttendanceLoading());
     try {
-      await permissionsRepository.insertPermissionForm(event.uid, event.date, event.type, event.description, event.imagePath);
+      await permissionsRepository.recordPermission(event.uid, event.date, event.type, event.description, event.imagePath);
       emit(AttendanceSuccess());
       add(CheckAttendanceStatus(event.uid, event.date));
     } catch (e) {
@@ -103,7 +106,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   Future<void> _onSubmitDinasForm(SubmitDinasForm event, Emitter<AttendanceState> emit) async {
     emit(AttendanceLoading());
     try {
-      await dinasRepository.insertDinasForm(event.uid, event.date, event.description, event.filePath);
+      await dinasRepository.recordDinas(event.uid, event.date, event.description, event.filePath);
       emit(AttendanceSuccess());
       add(CheckAttendanceStatus(event.uid, event.date));
     } catch (e) {
@@ -114,7 +117,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   Future<void> _onRecordOvertime(RecordOvertime event, Emitter<AttendanceState> emit) async {
     emit(AttendanceLoading());
     try {
-      await overtimeRepository.insertOvertime(event.uid, event.date);
+      await overtimeRepository.recordOvertime(event.uid, event.date);
       emit(AttendanceSuccess());
       add(CheckAttendanceStatus(event.uid, event.date));
     } catch (e) {
@@ -125,7 +128,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   Future<void> _onForgetAttendance(ForgetAttendance event, Emitter<AttendanceState> emit) async {
     emit(AttendanceLoading());
     try {
-      await attendanceRepository.insertForgetAttendance(event.uid, event.date, event.filePath, event.description);
+      await forgotAttendanceRepository.recordForgetAttendance(event.uid, event.date, event.filePath, event.description);
       emit(AttendanceSuccess());
       add(CheckAttendanceStatus(event.uid, event.date));
     } catch (e) {

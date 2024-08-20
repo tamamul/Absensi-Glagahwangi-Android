@@ -1,14 +1,61 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../../domain/entity/user.dart';
 import '../model/user_model.dart';
-import 'package:absensi_glagahwangi/domain/entity/user.dart';
 
 class UserRepository {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db;
+  final FirebaseStorage _storage;
+  final FirebaseAuth _auth;
+  late final StreamController<UserEntity> _userController;
+
+  UserRepository({
+    FirebaseFirestore? firestore,
+    FirebaseStorage? storage,
+    FirebaseAuth? auth,
+  })   : _db = firestore ?? FirebaseFirestore.instance,
+        _storage = storage ?? FirebaseStorage.instance,
+        _auth = auth ?? FirebaseAuth.instance {
+    _userController = StreamController<UserEntity>.broadcast(
+      onListen: _onListen,
+    );
+  }
+
+  UserEntity currentUser = UserEntity.empty;
+
+  Stream<UserEntity> get user => _userController.stream;
+
+  void _onListen() {
+    _auth.authStateChanges().listen((firebaseUser) async {
+      final user = firebaseUser == null ? UserEntity.empty : await _getUserData(firebaseUser);
+      currentUser = user;
+      _userController.add(user);
+    });
+  }
+
+  Future<UserEntity> getUserData() async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) {
+      return UserEntity.empty;
+    } else {
+      final user = await _getUserData(firebaseUser);
+      _userController.add(user);
+      return user;
+    }
+  }
+
+  Future<UserEntity> _getUserData(User firebaseUser) async {
+    final userDoc = await _db.collection('users').doc(firebaseUser.uid).get();
+    if (userDoc.exists) {
+      final userModel = UserModel.fromFirestore(userDoc);
+      return userModel.toEntity();
+    } else {
+      return UserEntity.empty;
+    }
+  }
 
   Future<void> updateUser(UserEntity user, File? imageFile) async {
     try {
@@ -114,8 +161,21 @@ class UserRepository {
     await firebaseUser.reauthenticateWithCredential(credential);
   }
 
-
   List<String> preprocessName(String name) {
     return name.toLowerCase().split(" ");
+  }
+
+  Future<void> resetPassword(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      if (e is FirebaseAuthException && e.code == 'user-not-found') {
+        throw FirebaseAuthException(
+            code: 'user-not-found', message: 'Email tidak terdaftar');
+      } else {
+        print('Error resetting password: $e');
+        throw e;
+      }
+    }
   }
 }

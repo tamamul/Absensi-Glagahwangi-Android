@@ -23,7 +23,6 @@ class MapsBloc extends Bloc<MapsEvent, MapsState> {
   Future<void> _onGetCurrentLocationEvent(GetCurrentLocationEvent event, Emitter<MapsState> emit) async {
     emit(MapsLoadInProgress());
     try {
-      // Initialize the geofence radius from Firebase
       await _mapRepository.initializeGeofenceRadius();
 
       Position position = await _mapRepository.getCurrentLocation();

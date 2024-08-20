@@ -7,31 +7,42 @@ abstract class AttendanceDataEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class FetchAttendanceForDate extends AttendanceDataEvent {
+class GetAttendanceForDate extends AttendanceDataEvent {
   final String uid;
   final DateTime date;
 
-  const FetchAttendanceForDate(this.uid, this.date);
+  const GetAttendanceForDate(this.uid, this.date);
 
   @override
   List<Object> get props => [uid, date];
 }
 
-class FetchAttendanceList extends AttendanceDataEvent {
+class GetAttendanceList extends AttendanceDataEvent {
   final String uid;
 
-  const FetchAttendanceList(this.uid);
+  const GetAttendanceList(this.uid);
 
   @override
   List<Object> get props => [uid];
 }
 
-class FetchAttendanceForMonth extends AttendanceDataEvent {
+class GetAttendanceForMonth extends AttendanceDataEvent {
   final String uid;
   final String month;
 
-  const FetchAttendanceForMonth(this.uid, this.month);
+  const GetAttendanceForMonth(this.uid, this.month);
 
   @override
   List<Object> get props => [uid, month];
+}
+
+class ExportAttendanceToExcel extends AttendanceDataEvent {
+  final String uid;
+  final String outputPath;
+  final DateTime date;
+
+  const ExportAttendanceToExcel(this.uid, this.outputPath, this.date);
+
+  @override
+  List<Object> get props => [uid, outputPath];
 }

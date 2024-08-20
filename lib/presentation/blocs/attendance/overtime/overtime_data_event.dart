@@ -7,11 +7,11 @@ abstract class OvertimeDataEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class FetchOvertimeDurationForMonth extends OvertimeDataEvent {
+class GetOvertimeDurationForMonth extends OvertimeDataEvent {
   final String uid;
   final String month;
 
-  const FetchOvertimeDurationForMonth(this.uid, this.month);
+  const GetOvertimeDurationForMonth(this.uid, this.month);
 
   @override
   List<Object> get props => [uid, month];

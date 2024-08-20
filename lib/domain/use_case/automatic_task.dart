@@ -1,15 +1,17 @@
 import 'dart:async';
 import 'package:absensi_glagahwangi/data/repository/attendance_repository.dart';
 import 'package:absensi_glagahwangi/data/repository/holiday_repository.dart';
+import 'package:absensi_glagahwangi/data/repository/overtime_repository.dart';
 import 'package:absensi_glagahwangi/domain/entity/holiday.dart';
 import 'package:flutter/foundation.dart';
 
 class AutomaticTask {
   final AttendanceRepository attendanceRepository;
   final HolidayRepository eventRepository;
+  final OvertimeRepository overtimeRepository;
   List<DateTime> eventDates = [];
 
-  AutomaticTask(this.attendanceRepository, this.eventRepository) {
+  AutomaticTask(this.attendanceRepository, this.eventRepository, this.overtimeRepository) {
     _fetchEventDates();
   }
 
@@ -50,6 +52,11 @@ class AutomaticTask {
         await attendanceRepository.autoRecordAttendanceOut(uid, now);
         await attendanceRepository.autoMarkAbsent(uid, now);
       }
+
+      if(now.hour >= 18 && now.minute >= 10) {
+        print("Executing autoRecordAttendanceOut and autoMarkAbsent for UID: $uid");
+        await overtimeRepository.nullifyOvertime(uid, now);
+    }
     });
   }
 }

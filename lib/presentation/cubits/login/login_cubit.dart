@@ -1,7 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../data/repository/auth_repository.dart';
 
 part 'login_state.dart';
@@ -24,10 +23,10 @@ class LoginCubit extends Cubit<LoginState> {
 
     emit(state.copyWith(status: LoginStatus.submitting));
 
-    final List<ConnectivityResult> connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.mobile) || connectivityResult.contains(ConnectivityResult.wifi)) {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult != ConnectivityResult.none) {
       try {
-        await _authRepository.logInWithEmailAndPassword(
+        await _authRepository.logIn(
           email: state.email,
           password: state.password,
         );

@@ -7,10 +7,10 @@ abstract class UserEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class FetchUser extends UserEvent {
+class getUser extends UserEvent {
   final String userId;
 
-  const FetchUser(this.userId);
+  const getUser(this.userId);
 
   @override
   List<Object> get props => [userId];
@@ -35,10 +35,10 @@ class UpdateUserImage extends UserEvent {
   List<Object> get props => [imageFile];
 }
 
-class ForgetPasswordEvent extends UserEvent {
+class resetPasswordEvent extends UserEvent {
   final String email;
 
-  const ForgetPasswordEvent(this.email);
+  const resetPasswordEvent(this.email);
 
   @override
   List<Object> get props => [email];

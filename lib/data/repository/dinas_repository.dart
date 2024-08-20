@@ -21,7 +21,7 @@ class DinasRepository {
     return await taskSnapshot.ref.getDownloadURL();
   }
 
-  Future<void> insertDinasForm(String uid, DateTime date, String description, String filePath) async {
+  Future<void> recordDinas(String uid, DateTime date, String description, String filePath) async {
     String formattedDate = _formatDate(date);
     String documentId = '${uid}_$formattedDate';
 
@@ -32,11 +32,11 @@ class DinasRepository {
       uid: uid,
       description: description,
       date: formattedDate,
-      type: "Izin Dinas",
+      type: "izin dinas",
       file: fileUrl,
       status: 'pending',
       checkedByAdmin: false,
-      createdTimestamp: FieldValue.serverTimestamp() as Timestamp,
+      createdTimestamp: FieldValue.serverTimestamp(),
     );
 
     await _firestore.collection('dinas').doc(documentId).set(dinasData.toMap());

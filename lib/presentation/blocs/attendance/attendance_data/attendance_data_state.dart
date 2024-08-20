@@ -39,3 +39,23 @@ class AttendanceDataFailure extends AttendanceDataState {
   @override
   List<Object> get props => [error];
 }
+
+class AttendanceExportLoading extends AttendanceDataState {}
+
+class AttendanceExportSuccess extends AttendanceDataState {
+  final String filePath;
+
+  const AttendanceExportSuccess(this.filePath);
+
+  @override
+  List<Object> get props => [filePath];
+}
+
+class AttendanceExportFailure extends AttendanceDataState {
+  final String error;
+
+  const AttendanceExportFailure(this.error);
+
+  @override
+  List<Object> get props => [error];
+}

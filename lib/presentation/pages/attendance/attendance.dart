@@ -39,33 +39,33 @@ class _AttendanceState extends State<Attendance> {
   }
 
   void _checkAttendanceStatus() {
-    final authUser = context.read<AuthBloc>().state.user;
+    final authUser = context.read<UserBloc>().state.user;
     context
         .read<AttendanceBloc>()
         .add(CheckAttendanceStatus(authUser.id, DateTime.now()));
     context
         .read<AttendanceDataBloc>()
-        .add(FetchAttendanceForDate(authUser.id, DateTime.now()));
+        .add(GetAttendanceForDate(authUser.id, DateTime.now()));
   }
 
   @override
   Widget build(BuildContext context) {
-    final authUser = context.select((AuthBloc bloc) => bloc.state.user);
+    final authUser = context.select((UserBloc bloc) => bloc.state.user);
     return MultiBlocProvider(
         providers: [
           BlocProvider<HolidayBloc>(
             create: (context) => HolidayBloc(holidayRepository: HolidayRepository())
-              ..add(FetchHoliday()),
+              ..add(getHoliday()),
           ),
           BlocProvider<UserBloc>(
             create: (context) => UserBloc(userRepository: UserRepository())
-              ..add(FetchUser(authUser.id)),
+              ..add(getUser(authUser.id)),
           ),
         ],
         child: Scaffold(
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 40, 12, 10),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -144,7 +144,7 @@ class _AttendanceState extends State<Attendance> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  AttendanceRecap(uid: authUser.id),
+                                  AttendanceRecap(),
                             ),
                           );
                         },
@@ -180,8 +180,8 @@ class _AttendanceState extends State<Attendance> {
                                   attendanceStatus != 'lembur'
                                   ? attendanceStatus
                                   : inData.isNotEmpty
-                                  ? inData['time'] ?? "Belum"
-                                  : "Belum",
+                                  ? inData['time'] ?? "belum"
+                                  : "belum",
                               attendanceStatus.isNotEmpty &&
                                   attendanceStatus != 'absen' &&
                                   attendanceStatus != 'lembur'
@@ -199,16 +199,16 @@ class _AttendanceState extends State<Attendance> {
                                   attendanceStatus != 'lembur'
                                   ? attendanceStatus
                                   : outData.isNotEmpty
-                                  ? outData['time'] ?? "Belum"
-                                  : "Belum",
+                                  ? outData['time'] ?? "belum"
+                                  : "belum",
                               attendanceStatus.isNotEmpty &&
                                   attendanceStatus != 'absen' &&
                                   attendanceStatus != 'lembur'
                                   ? "---"
                                   : outData.isNotEmpty
-                                  ? outData['status'] != 'Pulang'
+                                  ? outData['status'] != 'pulang'
                                   ? outData['status']
-                                  : 'Pulang'
+                                  : 'pulang'
                                   : "---",
                             ),
                           ],
@@ -216,9 +216,9 @@ class _AttendanceState extends State<Attendance> {
                       } else if (state is AttendanceDataEmpty || state is AttendanceDataFailure) {
                         return Row(
                           children: [
-                            _buildAttendanceCard("Masuk", Icons.input_rounded, "Belum", "---"),
+                            _buildAttendanceCard("Masuk", Icons.input_rounded, "belum", "---"),
                             const SizedBox(width: 10),
-                            _buildAttendanceCard("Keluar", Icons.output_rounded, "Belum", "---"),
+                            _buildAttendanceCard("Keluar", Icons.output_rounded, "belum", "---"),
                           ],
                         );
                       } else {
@@ -232,6 +232,8 @@ class _AttendanceState extends State<Attendance> {
                       bool hasOvertime = false;
                       bool checkedIn = false;
                       bool checkedOut = false;
+                      bool dinasStatus = false;
+                      bool permissionStatus = false;
 
                       if (state is AttendanceLoading) {
                         return const Center(child: CircularProgressIndicator());
@@ -239,6 +241,16 @@ class _AttendanceState extends State<Attendance> {
                         hasOvertime = state.hasOvertime;
                         checkedIn = state.checkedIn;
                         checkedOut = state.checkedOut;
+                        if(state.dinasStatus == "rejected"){
+                          dinasStatus = false;
+                        }else{
+                          dinasStatus = true;
+                        }
+                        if(state.permissionStatus == "rejected") {
+                          permissionStatus = false;
+                        }else{
+                          permissionStatus = true;
+                        }
                         _hasDinas = state.hasDinas;
                         _hasPermission = state.hasPermission;
                       }
@@ -301,8 +313,8 @@ class _AttendanceState extends State<Attendance> {
                                   (hour == 11 && minute <= 45) ||
                                   !checkedIn ||
                                   checkedOut ||
-                                  _hasDinas ||
-                                  _hasPermission) {
+                                  dinasStatus ||
+                                  permissionStatus) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -347,9 +359,9 @@ class _AttendanceState extends State<Attendance> {
                                           context
                                               .read<AttendanceBloc>()
                                               .add(RecordOvertime(
-                                                authUser.id,
-                                                DateTime.now(),
-                                              ));
+                                            authUser.id,
+                                            DateTime.now(),
+                                          ));
                                         },
                                         child: const Text("Aktifkan"),
                                       ),
@@ -1053,7 +1065,15 @@ class _AttendanceState extends State<Attendance> {
                                           const Spacer(),
                                           CustomButton(
                                             text: "Permintaan Ditolak",
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const PermissionForm(),
+                                                ),
+                                              );
+                                            },
                                             textSize: 18,
                                             textColor: Colors.white,
                                             buttonColor: Colors.red,
@@ -1141,7 +1161,25 @@ class _AttendanceState extends State<Attendance> {
                         if (_hasPermission &&
                             !_hasCheckedIn &&
                             !_hasCheckedOut) {
-                          if (state.permissionStatus == "pending") {
+                          if(_hasCheckedIn){
+                            return CustomButton(
+                              text: "\u25CF Tekan Untuk Presensi Keluar",
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                    const AttendanceMenuOut(),
+                                  ),
+                                ).then((_) {
+                                  _checkAttendanceStatus();
+                                });
+                              },
+                              textSize: 15,
+                              textColor: Colors.black,
+                              buttonColor: ColorPalette.mainYellow,
+                            );
+                          }else if (state.permissionStatus == "pending") {
                             return CustomButton(
                               text: "Izin Absen Sedang Diproses",
                               onPressed: () {
